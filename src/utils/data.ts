@@ -1,6 +1,7 @@
 import { loggedInUser } from "#app/account";
 import { saveKey } from "#app/constants";
 import { GameDataType } from "#enums/game-data-type";
+import { playerStorage } from "#system/player-storage";
 import type { AllStarterPreferences } from "#types/save-data";
 import { AES, enc } from "crypto-js";
 import type { WritableDeep } from "type-fest";
@@ -82,7 +83,7 @@ const DEFAULT_STARTER_PREFS = "{}";
 let savedStarterPrefs: string = DEFAULT_STARTER_PREFS;
 
 export function loadStarterPreferences(): AllStarterPreferences {
-  savedStarterPrefs = localStorage.getItem(`starterPrefs_${loggedInUser?.username}`) ?? DEFAULT_STARTER_PREFS;
+  savedStarterPrefs = playerStorage.getItem(`starterPrefs_${loggedInUser?.username}`) ?? DEFAULT_STARTER_PREFS;
   return JSON.parse(savedStarterPrefs);
 }
 
@@ -98,7 +99,7 @@ export function saveStarterPreferences(prefs: AllStarterPreferences): void {
 
   if (pStr !== savedStarterPrefs) {
     console.log("%cSaving starter preferences", "color: blue");
-    localStorage.setItem(`starterPrefs_${loggedInUser?.username}`, pStr);
+    playerStorage.setItem(`starterPrefs_${loggedInUser?.username}`, pStr);
     savedStarterPrefs = pStr;
   }
 }

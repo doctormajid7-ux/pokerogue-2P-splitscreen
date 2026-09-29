@@ -1,4 +1,5 @@
 import { coerceArray } from "#utils/array";
+import { assetPath } from "#utils/asset-path";
 import { getCachedUrl } from "#utils/fetch-utils";
 
 export const legacyCompatibleImages: string[] = [];
@@ -28,22 +29,22 @@ export class SceneBase extends Phaser.Scene {
   }
 
   public loadImage(key: string, folder: string, filename = `${key}.png`): this {
-    this.load.image(key, getCachedUrl(`images/${folder}/${filename}`));
+    this.load.image(key, getCachedUrl(assetPath("images", folder, filename)));
     if (folder.startsWith("ui")) {
       folder = folder.replace("ui", "ui/legacy");
-      this.load.image(`${key}_legacy`, getCachedUrl(`images/${folder}/${filename}`));
+      this.load.image(`${key}_legacy`, getCachedUrl(assetPath("images", folder, filename)));
     }
     return this;
   }
 
   public loadSpritesheet(key: string, folder: string, size: number, filename = `${key}.png`): this {
-    this.load.spritesheet(key, getCachedUrl(`images/${folder}/${filename}`), {
+    this.load.spritesheet(key, getCachedUrl(assetPath("images", folder, filename)), {
       frameWidth: size,
       frameHeight: size,
     });
     if (folder.startsWith("ui")) {
       folder = folder.replace("ui", "ui/legacy");
-      this.load.spritesheet(`${key}_legacy`, getCachedUrl(`images/${folder}/${filename}`), {
+      this.load.spritesheet(`${key}_legacy`, getCachedUrl(assetPath("images", folder, filename)), {
         frameWidth: size,
         frameHeight: size,
       });

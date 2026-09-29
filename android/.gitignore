@@ -1,0 +1,11 @@
+# Sorties et cache Gradle
+.gradle/
+build/
+app/build/
+apks/
+
+# Chemin du SDK, propre à la machine (généré par build-apk.sh)
+local.properties
+
+# Copie de dist/ dans les assets : générée par la tâche Gradle prepareWww
+app/src/main/assets/www/

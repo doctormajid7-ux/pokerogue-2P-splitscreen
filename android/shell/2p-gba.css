@@ -1,0 +1,588 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Pagefault Games
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only
+ *
+ * Accueil 2P inspiré de l'écran-titre et des fenêtres GBA du jeu.
+ * Les cadres, le curseur et la police sont les vrais graphismes PokéRogue.
+ */
+
+@font-face {
+  font-family: "PokeEmerald";
+  src: url("../fonts/pokemon-emerald-pro.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --ink: #fff;
+  --paper: #252b3c;
+  --accent: #f8d858;
+  --gba-window: #5b566c;
+  --gba-window-deep: #373344;
+  --gba-border: #ded8e4;
+  --center-height: 50px;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "PokeEmerald", "Arial", sans-serif;
+  -webkit-font-smoothing: none;
+  text-shadow: 1px 1px #272332;
+  font-size: 16px;
+}
+
+/* L'accueil est composé comme un écran de menu : deux fenêtres GBA autour du
+   logo du jeu, puis des lignes de réglage qui se lisent comme des options. */
+.home .home-half {
+  padding: 4px;
+  background: radial-gradient(ellipse at center, #41465b 0%, #252b3c 78%);
+}
+
+.home .home-half-j2 {
+  flex-basis: 34%;
+}
+
+.home .home-half-j1 {
+  flex-basis: 66%;
+}
+
+.home-pane {
+  gap: 6px;
+  padding: 9px calc(11px + env(safe-area-inset-right)) calc(9px + env(safe-area-inset-bottom))
+    calc(11px + env(safe-area-inset-left));
+  border: 8px solid transparent;
+  border-image-source: url("../images/ui/windows/window_1.png");
+  border-image-slice: 8 fill;
+  border-image-width: 8px;
+  border-image-repeat: stretch;
+  background-color: var(--gba-window);
+  box-shadow: 0 3px 0 #151620;
+}
+
+.home-half-j2 .home-pane {
+  padding-top: calc(9px + env(safe-area-inset-top));
+}
+
+.home-center,
+.center,
+.dashboard {
+  background-color: #383748;
+  border-color: #746e82;
+  box-shadow:
+    inset 0 2px 0 #a69eac,
+    inset 0 -2px 0 #211e2b;
+}
+
+.home-center {
+  min-height: 60px;
+  padding: 4px 8px;
+}
+
+.home h1 {
+  align-items: center;
+  gap: 10px;
+  font-family: "PokeEmerald", "Arial", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-shadow: 2px 2px #17131c;
+}
+
+.home h1 img {
+  display: block;
+  width: min(38vw, 150px);
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.home h1 span {
+  color: var(--accent);
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.who {
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-shadow: 2px 2px #17131c;
+}
+
+/* Les options partagent la même fenêtre, comme la liste du menu solo. */
+.gba-options {
+  display: grid;
+  gap: 1px;
+  padding: 4px 7px;
+  border: 5px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 5px;
+  border-image-repeat: stretch;
+  background-color: var(--gba-window-deep);
+}
+
+.quick-options {
+  display: grid;
+  gap: 2px;
+  padding: 5px 7px;
+  border: 5px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 5px;
+  border-image-repeat: stretch;
+  background-color: var(--gba-window-deep);
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(105px, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 2px 1px;
+  border-bottom: 1px dotted #8d8797;
+  color: #f5f1f7;
+  font-size: 15px;
+}
+
+.field-help {
+  grid-column: 1 / -1;
+  display: block;
+  padding: 1px 2px 5px;
+  color: #eee8f3;
+  font-size: 14px;
+  line-height: 1.35;
+  text-shadow: 1px 1px #272332;
+}
+
+.field:last-child {
+  border-bottom: 0;
+}
+
+.field select,
+.profile-card select,
+.reinforce-row select {
+  min-width: 0;
+  min-height: 41px;
+  padding: 2px 24px 2px 22px;
+  border: 4px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_xthin.png");
+  border-image-slice: 8;
+  border-image-width: 4px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  appearance: none;
+  background-color: #514b60;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #fff 51%), linear-gradient(135deg, #fff 49%, transparent 50%),
+    url("../images/ui/cursor.png");
+  background-position:
+    right 10px center,
+    right 5px center,
+    5px center;
+  background-repeat: no-repeat;
+  background-size:
+    5px 5px,
+    5px 5px,
+    12px 12px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  text-shadow: inherit;
+}
+
+.field input[type="number"] {
+  min-width: 0;
+  min-height: 41px;
+  padding: 2px 8px;
+  border: 4px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_xthin.png");
+  border-image-slice: 8;
+  border-image-width: 4px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: #514b60;
+  color: var(--ink);
+  font: inherit;
+}
+
+.match-result {
+  font-family: "PokeEmerald", "Arial", sans-serif;
+  text-shadow: 1px 1px #272332;
+}
+
+.result-card {
+  border: 8px solid transparent;
+  border-image-source: url("../images/ui/windows/window_1.png");
+  border-image-slice: 8 fill;
+  border-image-width: 8px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: var(--gba-window);
+  box-shadow: 0 4px 0 #151620;
+}
+
+.result-teams section {
+  border: 5px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 5px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: var(--gba-window-deep);
+}
+
+.result-kicker,
+.result-teams h3 {
+  color: var(--accent);
+}
+
+.profile-card input {
+  width: 100%;
+  min-height: 34px;
+  padding: 2px 6px;
+  border: 4px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_xthin.png");
+  border-image-slice: 8;
+  border-image-width: 4px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: #514b60;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.profile-select-row {
+  display: grid;
+  gap: 4px;
+}
+
+.profile-select-row label {
+  display: block;
+  font-size: 15px;
+}
+
+.profile-card .profile-select-row label {
+  display: block;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.profile-note {
+  color: #f4eff8;
+  font-size: 14px;
+}
+
+.field select option,
+.profile-card select option,
+.reinforce-row select option {
+  background: #514b60;
+  color: #fff;
+}
+
+.field.muted {
+  opacity: 0.45;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px;
+  color: #f5f1f7;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.check input {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 4px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_xthin.png");
+  border-image-slice: 8;
+  border-image-width: 4px;
+  appearance: none;
+  background-color: #514b60;
+}
+
+.check input:checked {
+  background-image: url("../images/ui/cursor.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 11px 11px;
+}
+
+.profile-card,
+.recap,
+.reinforce-panel,
+.wait-banner,
+.rotate-hint {
+  border: 6px solid transparent;
+  border-image-source: url("../images/ui/windows/window_1_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 6px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: var(--gba-window);
+  box-shadow: 0 3px 0 #17131c;
+}
+
+.profile-card {
+  gap: 5px;
+  padding: 7px;
+  font-size: 14px;
+}
+
+.profile-card label {
+  display: grid;
+  grid-template-columns: minmax(55px, 0.8fr) minmax(0, 1.2fr);
+  gap: 5px;
+  font-size: 15px;
+}
+
+.profile-card input,
+.profile-card select {
+  width: 100%;
+  min-height: 39px;
+}
+
+.profile-card button {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+.profile-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.delete-confirmation {
+  display: grid;
+  gap: 6px;
+  padding: 7px;
+  border: 5px solid transparent;
+  border-image-source: url("../images/ui/windows/window_1_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 5px;
+  border-image-repeat: stretch;
+  background: #423849;
+  min-width: 0;
+  margin: 0;
+}
+
+.delete-confirmation legend {
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-delete {
+  background-color: #70383d;
+}
+
+.profile-card #profile-summary-j1,
+.profile-card #profile-summary-j2,
+.profile-card #profile-bank-j1,
+.profile-card #profile-bank-j2 {
+  padding: 5px;
+  background: #393545;
+  color: #f4eff8;
+}
+
+.recap {
+  margin: 0;
+  padding: 7px 9px;
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.hint {
+  margin: 0;
+  color: #e9e3ef;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+button,
+.profile-card button {
+  position: relative;
+  min-height: 46px;
+  padding: 0 9px 0 27px;
+  border: 5px solid transparent;
+  border-image-source: url("../images/ui/windows/window_3_thin.png");
+  border-image-slice: 8 fill;
+  border-image-width: 5px;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background-color: #625a70;
+  box-shadow: 0 3px 0 #17131c;
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  text-align: left;
+  text-shadow: 1px 1px #302838;
+  image-rendering: pixelated;
+}
+
+.home-pane button::before,
+.reinforce-panel button::before {
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  background: url("../images/ui/cursor.png") center / contain no-repeat;
+  content: "";
+  image-rendering: pixelated;
+}
+
+button.primary,
+.chip.duel {
+  border-image-source: url("../images/ui/windows/window_1_thin.png");
+  background-color: #b93e36;
+  color: #fff;
+}
+
+button.secondary,
+.chip.quiet {
+  background-color: #5b5569;
+}
+
+.home button.primary {
+  min-height: 50px;
+  font-size: 17px;
+}
+
+button:active {
+  transform: translateY(2px);
+  filter: brightness(1.15);
+  box-shadow: 0 1px 0 #17131c;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rotate-hint {
+  margin: 0;
+  padding: 7px 9px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.reinforce-panel {
+  inset: 5px;
+  gap: 7px;
+  padding: 8px;
+  background-color: rgb(56 48 64 / 96%);
+  font-size: 14px;
+}
+
+.reinforce-panel strong {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.reinforce-row {
+  gap: 7px;
+}
+
+.reinforce-row select {
+  min-height: 42px;
+  font-size: 13px;
+}
+
+.dashboard {
+  flex-basis: 34px;
+}
+
+.tag {
+  padding: 2px 6px;
+  border-radius: 0;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-shadow: 1px 1px #17131c;
+}
+
+.tag.duel {
+  background: #b93e36;
+}
+
+.wait-banner {
+  padding: 9px 11px;
+  background-color: rgb(56 48 64 / 96%);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.center {
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.center .marker {
+  min-width: 34px;
+  color: #e9e3ef;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.center .marker.ready {
+  color: #a8f098;
+}
+
+.center .marker.paused {
+  color: var(--accent);
+}
+
+.chip {
+  min-height: 40px;
+  padding-left: 8px;
+  background-image: none;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 380px) {
+  .field {
+    grid-template-columns: minmax(88px, 0.8fr) minmax(0, 1.2fr);
+    font-size: 13px;
+  }
+}
+
+@media (max-height: 640px) {
+  .home-pane {
+    gap: 4px;
+    padding-top: 6px;
+  }
+
+  .field {
+    min-height: 39px;
+  }
+
+  .field select {
+    min-height: 35px;
+  }
+
+  .home button.primary {
+    min-height: 44px;
+  }
+}

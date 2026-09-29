@@ -3,6 +3,7 @@ import { globalScene } from "#app/global-scene";
 import { BackgroundMusic } from "#audio/background-music";
 import { PRSFX_SOUND_ADJUSTMENT_RATIO } from "#constants/app-constants";
 import { VolumeSetting } from "#enums/volume-setting";
+import { scopeFromQuery } from "#system/player-storage";
 import { fixedInt } from "#utils/common";
 
 export type AnySound = Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.NoAudioSound;
@@ -34,6 +35,11 @@ export class AudioManager {
    * @returns The effective volume for the given setting (between 0 and 1)
    */
   public getVolume(setting: VolumeSetting): number {
+    // The upper 2P frame shares the device speakers: J1 owns the one music
+    // stream, while J2 keeps its separate effects and UI sounds.
+    if (setting === VolumeSetting.BGM && typeof location !== "undefined" && scopeFromQuery(location.search) === "j2") {
+      return 0;
+    }
     let mul = 1;
     switch (setting) {
       case VolumeSetting.BGM:

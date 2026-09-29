@@ -1,0 +1,170 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Pagefault Games
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+:root {
+  color-scheme: dark;
+  --paper: #14121a;
+  --panel: #211d2b;
+  --ink: #f2efe9;
+  --muted: #c3bdcf;
+  --accent: #9c8cff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100dvh;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: grid;
+  place-items: center;
+  touch-action: pan-y;
+}
+
+main {
+  width: min(100%, 540px);
+  margin: auto;
+  padding: 28px 22px;
+  border: 1px solid #4f485e;
+  border-radius: 18px;
+  background: #191620;
+  box-shadow: 0 16px 48px #0006;
+}
+
+header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(28px, 8vw, 40px);
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+h2 {
+  margin-bottom: 9px;
+  font-size: 20px;
+}
+
+section > p,
+.hint,
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.profile-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+button {
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 16px;
+  border: 1px solid #716982;
+  border-radius: 11px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 650;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+button:active {
+  border-color: var(--accent);
+  background: #302a3d;
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid #ffffff24;
+  border-radius: 50%;
+  background: #ffffff0c;
+  font-size: 22px;
+}
+
+.profile-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.profile-copy small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.empty {
+  margin-top: 14px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+  height: 1px;
+  flex: 1;
+  background: #4f485e;
+  content: "";
+}
+
+.solo-save {
+  border-color: #596b61;
+  background: #202b26;
+  text-align: center;
+}
+
+.hint {
+  margin-top: 9px;
+  text-align: center;
+  font-size: 12px;
+}

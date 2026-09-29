@@ -15,6 +15,13 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 PokéRogue is a browser based Pokémon fangame heavily inspired by the roguelite genre. Battle endlessly while gathering stacking items, exploring many different biomes, fighting trainers, bosses, and more!
 
+# Android version
+
+This fork adds an offline Android app, local two-player split-screen play, and
+profile-based saves. See the [Android player guide](./android/README.md) in
+English or [French](./android/README.fr.md). Changes from the original browser
+game are listed in the [Android changelog](./android/CHANGELOG.md).
+
 # Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md), this includes instructions on how to set up the game locally.

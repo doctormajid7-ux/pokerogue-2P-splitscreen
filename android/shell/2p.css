@@ -1,0 +1,630 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Pagefault Games
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+:root {
+  /* Hauteur réellement visible, posée par le script depuis `visualViewport`. */
+  --viewport-height: 100%;
+  --center-height: 44px;
+  --ink: #f2efe9;
+  --paper: #14121a;
+  --accent: #9c8cff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* `hidden` doit gagner : nos règles d'auteur (`display: flex`) l'emportent
+   sinon sur la feuille du navigateur, et les deux écrans restent empilés. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+  /* La zone de jeu ne doit ni défiler, ni zoomer, ni afficher de menu contextuel. */
+  touch-action: pan-y;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --------------------------------------------------------------- accueil */
+
+/* L'accueil reprend le partage de l'arène : J1 configure dans la moitié basse,
+   droite ; J2 lit le récapitulatif dans la moitié haute, retournée, et donne
+   son accord. Les sélecteurs portent `.home` pour battre les règles de `.half`,
+   définies plus bas dans la section arène. */
+.home {
+  display: flex;
+  flex-direction: column;
+  height: var(--viewport-height);
+}
+
+.home .home-half {
+  background: var(--paper);
+  /* Le panneau défile si besoin : c'est le seul endroit où un glissement
+     vertical reste accepté. */
+  overflow: hidden;
+}
+
+/* J2 n'a que le récapitulatif et un bouton : il lui faut moins de place. */
+.home .home-half-j2 {
+  flex: 0 0 34%;
+}
+
+.home .home-half-j1 {
+  flex: 1 1 auto;
+}
+
+.home-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 12px calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
+    calc(16px + env(safe-area-inset-left));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.home-half-j2 .home-pane {
+  padding-top: calc(12px + env(safe-area-inset-top));
+}
+
+.profile-card {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #716982;
+  border-radius: 10px;
+  background: #211d2b;
+  font-size: 13px;
+}
+
+.profile-card label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-card input,
+.profile-card select {
+  width: min(180px, 70%);
+  min-height: 40px;
+  padding: 4px 8px;
+  border: 1px solid #716982;
+  border-radius: 6px;
+  background: #14121a;
+  color: var(--ink);
+  font: inherit;
+}
+
+.profile-card select {
+  width: min(220px, 75%);
+}
+.profile-card button {
+  min-height: 40px;
+}
+
+.profile-card p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.profile-select-row {
+  display: grid;
+  gap: 5px;
+}
+
+.profile-select-row label {
+  display: block;
+}
+
+.profile-card .profile-select-row label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.profile-note {
+  margin: 0;
+  color: #d9d3e3;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.delete-confirmation {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--accent);
+  background: #241f2f;
+  min-width: 0;
+  margin: 0;
+}
+
+.delete-confirmation legend {
+  margin: 0;
+  line-height: 1.4;
+  padding: 0;
+}
+
+.profile-delete {
+  background: #4a2b2b;
+}
+
+.home-center {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  background: #1b1824;
+  border-top: 1px solid #2c2838;
+  border-bottom: 1px solid #2c2838;
+}
+
+.home h1 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.home h1 span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.who {
+  margin: 0;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.hint {
+  margin: 0;
+  color: #b9b3c6;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.field-help {
+  display: block;
+  color: #b9b3c6;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.field select {
+  /* Cible tactile confortable, même sur un petit écran. */
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #3a3646;
+  border-radius: 10px;
+  background: #1e1b27;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.field input[type="number"] {
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid #77718a;
+  border-radius: 6px;
+  background: #17151f;
+  color: var(--ink);
+  font: inherit;
+}
+
+.field.muted {
+  opacity: 0.45;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.check input {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+}
+
+/* Ce que la configuration implique : la même phrase dans les deux moitiés,
+   pour qu'aucun des deux joueurs n'ait à refaire l'arithmétique de tête. */
+.recap {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #3a3646;
+  border-radius: 10px;
+  background: #1e1b27;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.quick-options {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #575064;
+  border-radius: 8px;
+  background: #24212e;
+}
+
+.quick-options > [hidden] {
+  display: none !important;
+}
+
+button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid #3a3646;
+  border-radius: 10px;
+  background: #1e1b27;
+  color: var(--ink);
+  font-size: 16px;
+  font-family: inherit;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14121a;
+  font-weight: 700;
+}
+
+button.secondary {
+  background: #241f2f;
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* Cibles plus généreuses à l'accueil : on y choisit, on ne joue pas. */
+.home button.primary {
+  min-height: 52px;
+  font-size: 17px;
+}
+
+.rotate-hint {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #4a2b2b;
+  color: #ffd9d9;
+  font-size: 14px;
+}
+
+/* ----------------------------------------------------------------- arène */
+
+.arena {
+  display: flex;
+  flex-direction: column;
+  height: var(--viewport-height);
+  /* Marges système : encoche, barre de gestes, coins arrondis. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.match-result {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgb(12 10 18 / 94%);
+  overflow-y: auto;
+}
+
+.result-card {
+  width: min(100%, 720px);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 22px;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: #24212e;
+  box-shadow: 0 8px 32px #0009;
+}
+
+.result-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.result-card h2 {
+  margin: 4px 0 8px;
+  font-size: clamp(24px, 6vw, 38px);
+}
+
+.result-teams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.result-teams section {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #514b60;
+  border-radius: 8px;
+  background: #17151f;
+}
+
+.result-teams h3 {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.result-teams ul {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.55;
+}
+
+.result-items {
+  margin: 10px 0 0;
+  color: #d6d0df;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#result-home {
+  width: 100%;
+}
+
+@media (max-width: 420px) {
+  .result-card {
+    padding: 16px;
+  }
+  .result-teams {
+    grid-template-columns: 1fr;
+  }
+}
+
+.half {
+  position: relative;
+  flex: 1 1 50%;
+  /* Sans `min-height: 0`, un iframe impose sa hauteur et casse la symétrie. */
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* La moitié haute appartient à J2 : retournée, mais le même geste reste le même. */
+.half-j2 {
+  transform: rotate(180deg);
+  transform-origin: center;
+}
+
+.half iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+  /* Un contact qui démarre dans un cadre n'entraîne ni scroll ni zoom parent. */
+  touch-action: none;
+}
+
+.reinforce-panel {
+  position: absolute;
+  inset: 4px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: #1c1925;
+  font-size: 13px;
+}
+
+.reinforce-rows {
+  display: grid;
+  gap: 5px;
+}
+
+.reinforce-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.reinforce-row select {
+  min-width: 0;
+  min-height: 42px;
+  color: var(--ink);
+  background: #302b3a;
+  border: 1px solid #716982;
+  border-radius: 6px;
+}
+
+/* Les tableaux de bord occupent leur propre rangée hors des cadres du jeu. */
+.dashboard {
+  display: flex;
+  flex: 0 0 32px;
+  align-items: center;
+  padding: 0 8px;
+  background: #211d2b;
+  border-top: 1px solid #3a3646;
+  border-bottom: 1px solid #3a3646;
+}
+
+.dashboard-j2 {
+  transform: rotate(180deg);
+}
+
+.tag {
+  display: block;
+  width: 100%;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+/* Le duel est jouable : le repère se voit sans avoir à le lire. */
+.tag.duel {
+  background: var(--accent);
+  color: #14121a;
+}
+
+/* Attente de duel : lisible depuis la place de son joueur, au centre de sa
+   moitié, par-dessus le jeu arrêté. */
+.wait-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgb(20 18 26 / 92%);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+}
+
+.chip.duel {
+  max-width: 160px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #14121a;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+/* Chrome commun : hors des cibles de combat, sur la ligne de partage. */
+.center {
+  display: flex;
+  flex: 0 0 var(--center-height);
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  background: #1b1824;
+  border-top: 1px solid #2c2838;
+  border-bottom: 1px solid #2c2838;
+}
+
+.center .marker {
+  min-width: 44px;
+  color: #b9b3c6;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.center .marker.ready {
+  color: #8ef0a8;
+}
+
+.center .marker.paused {
+  color: #ffd479;
+}
+
+.chip {
+  flex: 1 1 auto;
+  max-width: 140px;
+  min-height: 34px;
+  font-size: 14px;
+}
+
+.chip.quiet {
+  background: #241f2f;
+  color: #cdc7d8;
+}
+
+/* Petits écrans : on récupère de la place sur le chrome, pas sur les jeux. */
+@media (max-height: 640px) {
+  :root {
+    --center-height: 38px;
+  }
+
+  .tag {
+    font-size: 11px;
+  }
+
+  .home-pane {
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .field select {
+    min-height: 40px;
+  }
+}
+
+@media (orientation: landscape) {
+  .home {
+    text-align: center;
+  }
+
+  .recap,
+  .hint {
+    text-align: center;
+  }
+}

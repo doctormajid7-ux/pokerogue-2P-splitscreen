@@ -3,6 +3,7 @@
 import { GameDataType } from "#enums/game-data-type";
 import { version } from "#package.json";
 import { SessionMigrationError } from "#system/migration-errors";
+import { playerStorage } from "#system/player-storage";
 import type { AppliedMigrators, SessionSaveData, SystemSaveData } from "#types/save-data";
 import type {
   SessionSaveMigrator,
@@ -196,7 +197,7 @@ export function applySettingsVersionMigration(data: object): void {
   if (isCurrentVersionHigher) {
     applyMigrators(settingsMigrators, data, prevVersion);
     data["meta"]["gameVersion"] = LATEST_VERSION;
-    localStorage.setItem(getDataTypeKey(GameDataType.SETTINGS), JSON.stringify(data));
+    playerStorage.setItem(getDataTypeKey(GameDataType.SETTINGS), JSON.stringify(data));
     console.log(`Settings successfully migrated to v${LATEST_VERSION}!`);
   }
 }

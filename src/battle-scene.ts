@@ -323,6 +323,9 @@ export class BattleScene extends SceneBase {
         const touchControls = document.getElementById("touchControls");
         if (touchControls && typeof value === "boolean") {
           touchControls.classList.toggle("visible", value);
+          if (document.documentElement.dataset.androidSolo === "true") {
+            requestAnimationFrame(() => this.game.scale.refresh());
+          }
         }
         return;
       }

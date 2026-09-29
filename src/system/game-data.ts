@@ -46,8 +46,10 @@ import { ChallengeData } from "#system/challenge-data";
 import { EggData } from "#system/egg-data";
 import { GameStats } from "#system/game-stats";
 import { ModifierData as PersistentModifierData } from "#system/modifier-data";
+import { playerStorage } from "#system/player-storage";
 import { PokemonData } from "#system/pokemon-data";
 import { RibbonData } from "#system/ribbon-data";
+import { notifyPveSaved } from "#system/shell-bridge";
 import { TrainerData } from "#system/trainer-data";
 import { applySessionVersionMigration, applySystemVersionMigration } from "#system/version-converter";
 import { vouchers } from "#system/voucher";
@@ -271,7 +273,7 @@ export class GameData {
       typeof v === "bigint" ? (v <= maxIntAttrValue ? Number(v) : v.toString()) : v,
     );
 
-    localStorage.setItem(`data_${loggedInUser?.username}`, encrypt(systemData, bypassLogin));
+    playerStorage.setItem(`data_${loggedInUser?.username}`, encrypt(systemData, bypassLogin));
 
     if (bypassLogin) {
       globalScene.ui.savingIcon.hide();
@@ -294,12 +296,12 @@ export class GameData {
   public async loadSystem(): Promise<boolean> {
     console.log("Client Session:", clientSessionId);
 
-    if (bypassLogin && !localStorage.getItem(`data_${loggedInUser?.username}`)) {
+    if (bypassLogin && !playerStorage.getItem(`data_${loggedInUser?.username}`)) {
       return false;
     }
 
     if (bypassLogin) {
-      return await this.initSystem(decrypt(localStorage.getItem(`data_${loggedInUser?.username}`)!, bypassLogin)); // TODO: is this bang correct?
+      return await this.initSystem(decrypt(playerStorage.getItem(`data_${loggedInUser?.username}`)!, bypassLogin)); // TODO: is this bang correct?
     }
     const saveDataOrErr = await pokerogueApi.savedata.system.get({ clientSessionId });
 
@@ -315,7 +317,7 @@ export class GameData {
       return false;
     }
 
-    const cachedSystem = localStorage.getItem(`data_${loggedInUser?.username}`);
+    const cachedSystem = playerStorage.getItem(`data_${loggedInUser?.username}`);
     return await this.initSystem(
       saveDataOrErr,
       cachedSystem ? AES.decrypt(cachedSystem, saveKey).toString(enc.Utf8) : undefined,
@@ -427,12 +429,12 @@ export class GameData {
         }
       }
 
-      localStorage.setItem(`data_${loggedInUser?.username}`, encrypt(systemDataStr, bypassLogin));
+      playerStorage.setItem(`data_${loggedInUser?.username}`, encrypt(systemDataStr, bypassLogin));
 
       const lsItemKey = `runHistoryData_${loggedInUser?.username}`;
-      const lsItem = localStorage.getItem(lsItemKey);
+      const lsItem = playerStorage.getItem(lsItemKey);
       if (!lsItem) {
-        localStorage.setItem(lsItemKey, "");
+        playerStorage.setItem(lsItemKey, "");
       }
 
       if (!isDev && !isBeta && compareVersions(systemData.gameVersion, version) === 1) {
@@ -460,7 +462,7 @@ export class GameData {
   // TODO: save run history data to server?
   async getRunHistoryData(): Promise<RunHistoryData> {
     const lsItemKey = `runHistoryData_${loggedInUser?.username}`;
-    const lsItem = localStorage.getItem(lsItemKey);
+    const lsItem = playerStorage.getItem(lsItemKey);
     if (lsItem) {
       const cachedResponse = lsItem;
       if (cachedResponse) {
@@ -469,7 +471,7 @@ export class GameData {
       }
       return {};
     }
-    localStorage.setItem(`runHistoryData_${loggedInUser?.username}`, "");
+    playerStorage.setItem(`runHistoryData_${loggedInUser?.username}`, "");
     return {};
   }
 
@@ -498,7 +500,7 @@ export class GameData {
       isVictory,
       isFavorite: false,
     };
-    localStorage.setItem(
+    playerStorage.setItem(
       `runHistoryData_${loggedInUser?.username}`,
       encrypt(JSON.stringify(runHistoryData), bypassLogin),
     );
@@ -568,9 +570,9 @@ export class GameData {
     if (bypassLogin) {
       return;
     }
-    localStorage.removeItem(`data_${loggedInUser?.username}`);
+    playerStorage.removeItem(`data_${loggedInUser?.username}`);
     for (let s = 0; s < 5; s++) {
-      localStorage.removeItem(getSessionDataLocalStorageKey(s));
+      playerStorage.removeItem(getSessionDataLocalStorageKey(s));
     }
   }
 
@@ -608,7 +610,7 @@ export class GameData {
   public saveMappingConfigs(deviceName: string, config): void {
     const key = deviceName.toLowerCase();
     let mappingConfigs: object = {};
-    const lsMappingConfigs = localStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
+    const lsMappingConfigs = playerStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
 
     if (lsMappingConfigs) {
       try {
@@ -623,7 +625,7 @@ export class GameData {
     }
     mappingConfigs[key].custom = config.custom;
 
-    localStorage.setItem(getDataTypeKey(GameDataType.MAPPING_CONFIG), JSON.stringify(mappingConfigs));
+    playerStorage.setItem(getDataTypeKey(GameDataType.MAPPING_CONFIG), JSON.stringify(mappingConfigs));
   }
 
   /**
@@ -633,7 +635,7 @@ export class GameData {
    * `false` if no configurations are found in localStorage.
    */
   public loadMappingConfigs(): boolean {
-    const lsMappingConfigs = localStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
+    const lsMappingConfigs = playerStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
     if (!lsMappingConfigs) {
       return false;
     }
@@ -659,7 +661,7 @@ export class GameData {
       return false;
     }
 
-    const lsMappingConfigs = localStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
+    const lsMappingConfigs = playerStorage.getItem(getDataTypeKey(GameDataType.MAPPING_CONFIG));
     if (!lsMappingConfigs) {
       return false;
     }
@@ -675,7 +677,7 @@ export class GameData {
 
     if (Object.hasOwn(mappingConfigs, deviceName)) {
       delete mappingConfigs[deviceName];
-      localStorage.setItem(getDataTypeKey(GameDataType.MAPPING_CONFIG), JSON.stringify(mappingConfigs));
+      playerStorage.setItem(getDataTypeKey(GameDataType.MAPPING_CONFIG), JSON.stringify(mappingConfigs));
       globalScene.inputController.resetConfig(device);
     }
 
@@ -689,8 +691,8 @@ export class GameData {
    */
   public saveTutorialFlag(tutorial: Tutorial, status: boolean): void {
     const saveDataKey = getDataTypeKey(GameDataType.TUTORIALS);
-    const tutorials: TutorialFlags = Object.hasOwn(localStorage, saveDataKey)
-      ? JSON.parse(localStorage.getItem(saveDataKey)!)
+    const tutorials: TutorialFlags = playerStorage.hasItem(saveDataKey)
+      ? JSON.parse(playerStorage.getItem(saveDataKey)!)
       : {};
 
     // TODO: We shouldn't be storing this like that
@@ -702,7 +704,7 @@ export class GameData {
       }
     }
 
-    localStorage.setItem(saveDataKey, JSON.stringify(tutorials));
+    playerStorage.setItem(saveDataKey, JSON.stringify(tutorials));
   }
 
   public getTutorialFlags(): TutorialFlags {
@@ -712,11 +714,11 @@ export class GameData {
       return acc;
     }, {} as TutorialFlags);
 
-    if (!Object.hasOwn(localStorage, key)) {
+    if (!playerStorage.hasItem(key)) {
       return ret;
     }
 
-    const tutorials = JSON.parse(localStorage.getItem(key)!); // TODO: is this bang correct?
+    const tutorials = JSON.parse(playerStorage.getItem(key)!); // TODO: is this bang correct?
 
     for (const tutorial of Object.keys(tutorials)) {
       ret[tutorial] = tutorials[tutorial];
@@ -730,7 +732,7 @@ export class GameData {
     const dialogues: object = this.getSeenDialogues();
 
     dialogues[dialogue] = true;
-    localStorage.setItem(key, JSON.stringify(dialogues));
+    playerStorage.setItem(key, JSON.stringify(dialogues));
     console.log("Dialogue saved as seen:", dialogue);
 
     return true;
@@ -740,11 +742,11 @@ export class GameData {
     const key = getDataTypeKey(GameDataType.SEEN_DIALOGUES);
     const ret: SeenDialogues = {};
 
-    if (!Object.hasOwn(localStorage, key)) {
+    if (!playerStorage.hasItem(key)) {
       return ret;
     }
 
-    const dialogues = JSON.parse(localStorage.getItem(key)!); // TODO: is this bang correct?
+    const dialogues = JSON.parse(playerStorage.getItem(key)!); // TODO: is this bang correct?
 
     for (const dialogue of Object.keys(dialogues)) {
       ret[dialogue] = dialogues[dialogue];
@@ -790,7 +792,7 @@ export class GameData {
 
     console.debug("Getting Session Slot id: %d", slotId);
 
-    const sessionData = localStorage.getItem(getSessionDataLocalStorageKey(slotId));
+    const sessionData = playerStorage.getItem(getSessionDataLocalStorageKey(slotId));
     if (sessionData) {
       return this.parseSessionData(decrypt(sessionData, bypassLogin));
     }
@@ -806,8 +808,7 @@ export class GameData {
       console.error("Invalid save data detected!", response);
       return;
     }
-
-    localStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypt(response, bypassLogin));
+    playerStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypt(response, bypassLogin));
 
     return this.parseSessionData(response);
   }
@@ -834,7 +835,7 @@ export class GameData {
     const trainerId = this.trainerId;
 
     if (bypassLogin) {
-      localStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypt(updatedDataStr, bypassLogin));
+      playerStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypt(updatedDataStr, bypassLogin));
       return true;
     }
 
@@ -846,7 +847,7 @@ export class GameData {
     if (response) {
       return false;
     }
-    localStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypted);
+    playerStorage.setItem(getSessionDataLocalStorageKey(slotId), encrypted);
     const [success] = await updateUserInfo();
     return success;
   }
@@ -1012,7 +1013,7 @@ export class GameData {
    */
   async deleteSession(slotId: number): Promise<boolean> {
     if (bypassLogin) {
-      localStorage.removeItem(getSessionDataLocalStorageKey(slotId));
+      playerStorage.removeItem(getSessionDataLocalStorageKey(slotId));
       return true;
     }
 
@@ -1027,7 +1028,7 @@ export class GameData {
         loggedInUser.lastSessionSlot = -1;
       }
 
-      localStorage.removeItem(getSessionDataLocalStorageKey(slotId));
+      playerStorage.removeItem(getSessionDataLocalStorageKey(slotId));
       return true;
     }
     if (error.startsWith("session out of date")) {
@@ -1049,9 +1050,9 @@ export class GameData {
       return true;
     }
 
-    const prevDailies = localStorage.getItem("daily");
+    const prevDailies = playerStorage.getItem("daily");
     if (!prevDailies) {
-      localStorage.setItem("daily", btoa(JSON.stringify([seed])));
+      playerStorage.setItem("daily", btoa(JSON.stringify([seed])));
       return true;
     }
     const clearedDailies = JSON.parse(atob(prevDailies)) as string[];
@@ -1059,7 +1060,7 @@ export class GameData {
       return false;
     }
     clearedDailies.push(seed);
-    localStorage.setItem("daily", btoa(JSON.stringify(clearedDailies)));
+    playerStorage.setItem("daily", btoa(JSON.stringify(clearedDailies)));
     return true;
   }
 
@@ -1075,7 +1076,7 @@ export class GameData {
     }
 
     if (bypassLogin) {
-      localStorage.removeItem(getSessionDataLocalStorageKey(slotId));
+      playerStorage.removeItem(getSessionDataLocalStorageKey(slotId));
       return [true, true];
     }
 
@@ -1087,7 +1088,7 @@ export class GameData {
     );
 
     if (!jsonResponse.error) {
-      localStorage.removeItem(getSessionDataLocalStorageKey(slotId));
+      playerStorage.removeItem(getSessionDataLocalStorageKey(slotId));
       return [true, !!jsonResponse.success];
     }
 
@@ -1199,14 +1200,14 @@ export class GameData {
 
     const sessionData = useCachedSession
       ? this.parseSessionData(
-          decrypt(localStorage.getItem(getSessionDataLocalStorageKey(globalScene.sessionSlotId))!, bypassLogin),
+          decrypt(playerStorage.getItem(getSessionDataLocalStorageKey(globalScene.sessionSlotId))!, bypassLogin),
         ) // TODO: is this bang correct?
       : this.getSessionSaveData();
 
     const maxIntAttrValue = 0x80000000;
 
     const systemData = useCachedSystem
-      ? GameData.parseSystemData(decrypt(localStorage.getItem(`data_${loggedInUser?.username}`)!, bypassLogin))
+      ? GameData.parseSystemData(decrypt(playerStorage.getItem(`data_${loggedInUser?.username}`)!, bypassLogin))
       : this.getSystemSaveData(); // TODO: is this bang correct?
 
     if (!this.validateSystemData(systemData)) {
@@ -1225,7 +1226,7 @@ export class GameData {
       clientSessionId,
     };
 
-    localStorage.setItem(
+    playerStorage.setItem(
       `data_${loggedInUser?.username}`,
       encrypt(
         JSON.stringify(systemData, (_k: any, v: any) =>
@@ -1235,7 +1236,7 @@ export class GameData {
       ),
     );
 
-    localStorage.setItem(
+    playerStorage.setItem(
       getSessionDataLocalStorageKey(globalScene.sessionSlotId),
       encrypt(JSON.stringify(sessionData), bypassLogin),
     );
@@ -1245,6 +1246,12 @@ export class GameData {
     if (bypassLogin || !sync) {
       const verified = await this.verify();
       globalScene.ui.savingIcon.hide();
+      // La sauvegarde de session est écrite : le coordinateur 2P peut ouvrir un
+      // duel, il exige cet accusé des deux joueurs. Sans coque 2P, rien n'est
+      // envoyé (voir `src/system/shell-bridge.ts`).
+      if (verified) {
+        notifyPveSaved();
+      }
       return verified;
     }
 
@@ -1255,6 +1262,7 @@ export class GameData {
     }
 
     if (!saveError) {
+      notifyPveSaved();
       return true;
     }
 
@@ -1273,7 +1281,7 @@ export class GameData {
 
     // TODO: This control flow still leaves something to be desired
     if (bypassLogin || (dataType !== GameDataType.SYSTEM && dataType !== GameDataType.SESSION)) {
-      const encrypted = localStorage.getItem(dataKey);
+      const encrypted = playerStorage.getItem(dataKey);
       if (typeof encrypted !== "string") {
         return false;
       }
@@ -1443,7 +1451,7 @@ export class GameData {
           // TODO: move this outside of game data
           const importDataConfirmOptions: ConfirmModeConfig = {
             yesHandler: () => {
-              localStorage.setItem(dataKey, encrypt(dataStr, bypassLogin));
+              playerStorage.setItem(dataKey, encrypt(dataStr, bypassLogin));
 
               if (!bypassLogin && dataType < GameDataType.SETTINGS) {
                 updateUserInfo().then(success => {

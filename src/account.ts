@@ -1,5 +1,6 @@
 import { pokerogueApi } from "#api/api";
 import { bypassLogin } from "#constants/app-constants";
+import { playerStorage } from "#system/player-storage";
 import type { UserInfo } from "#types/api";
 import { randomString } from "#utils/common";
 
@@ -27,7 +28,7 @@ export async function updateUserInfo(): Promise<[success: boolean, status: numbe
     hasAdminRole: false,
   };
   for (let s = 0; s < 5; s++) {
-    if (localStorage.getItem(getSessionDataLocalStorageKey(s))) {
+    if (playerStorage.getItem(getSessionDataLocalStorageKey(s))) {
       loggedInUser.lastSessionSlot = s;
       break;
     }
@@ -36,14 +37,14 @@ export async function updateUserInfo(): Promise<[success: boolean, status: numbe
   // Migrate old data from before the username was appended
   // TODO: This fallback has existed for 20 MONTHS by now; review if we need it anymore
   for (const d of ["data", "sessionData", "sessionData1", "sessionData2", "sessionData3", "sessionData4"]) {
-    const lsItem = localStorage.getItem(d);
+    const lsItem = playerStorage.getItem(d);
     if (lsItem) {
-      const lsUserItem = localStorage.getItem(`${d}_${loggedInUser.username}`);
+      const lsUserItem = playerStorage.getItem(`${d}_${loggedInUser.username}`);
       if (lsUserItem) {
-        localStorage.setItem(`${d}_${loggedInUser.username}_bak`, lsUserItem);
+        playerStorage.setItem(`${d}_${loggedInUser.username}_bak`, lsUserItem);
       }
-      localStorage.setItem(`${d}_${loggedInUser.username}`, lsItem);
-      localStorage.removeItem(d);
+      playerStorage.setItem(`${d}_${loggedInUser.username}`, lsItem);
+      playerStorage.removeItem(d);
     }
   }
   return [true, 200];

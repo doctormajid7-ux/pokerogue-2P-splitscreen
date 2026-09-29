@@ -2,6 +2,7 @@ import { loggedInUser } from "#app/account";
 import type { PokemonType } from "#enums/pokemon-type";
 import type { SpeciesId } from "#enums/species-id";
 import type { Variant } from "#sprites/variant";
+import { playerStorage } from "#system/player-storage";
 import type { AllStarterPreferences, StarterPreferences } from "#types/save-data";
 import type { SettingsSaveMigrator, SystemSaveMigrator } from "#types/save-migrators";
 import { saveStarterPreferences } from "#utils/data";
@@ -265,7 +266,7 @@ function migrateKeys(data: object): void {
     migrateKey(data, oldKey, keyMigrationMap[oldKey].category, keyMigrationMap[oldKey].newKey);
   }
 
-  const lsGamepadSettings = localStorage.getItem("settingsGamepad");
+  const lsGamepadSettings = playerStorage.getItem("settingsGamepad");
   if (lsGamepadSettings == null) {
     data["gamepad"] = { activeIndex: 0, enabled: true };
   } else {
@@ -274,19 +275,19 @@ function migrateKeys(data: object): void {
     data["gamepad"]["activeIndex"] = oldGamepadSettings["CONTROLLER"] ?? 0;
     data["gamepad"]["enabled"] = !oldGamepadSettings["GAMEPAD_SUPPORT"];
 
-    localStorage.removeItem("settingsGamepad");
+    playerStorage.removeItem("settingsGamepad");
   }
 
-  const landscapePositions = localStorage.getItem("touchControlPositionsLandscape");
+  const landscapePositions = playerStorage.getItem("touchControlPositionsLandscape");
   if (landscapePositions) {
-    localStorage.setItem("touchControl/positions/landscape-primary", landscapePositions);
-    localStorage.removeItem("touchControlPositionsLandscape");
+    playerStorage.setItem("touchControl/positions/landscape-primary", landscapePositions);
+    playerStorage.removeItem("touchControlPositionsLandscape");
   }
 
-  const portraitPositions = localStorage.getItem("touchControlPositionsPortrait");
+  const portraitPositions = playerStorage.getItem("touchControlPositionsPortrait");
   if (portraitPositions) {
-    localStorage.setItem("touchControl/positions/portrait-primary", portraitPositions);
-    localStorage.removeItem("touchControlPositionsPortrait");
+    playerStorage.setItem("touchControl/positions/portrait-primary", portraitPositions);
+    playerStorage.removeItem("touchControlPositionsPortrait");
   }
 }
 
@@ -445,7 +446,7 @@ const migrateStarterPreferences: SystemSaveMigrator = {
   version: "1.12.1.0",
   migrate: (_data: object): void => {
     const oldStarterPreferences = JSON.parse(
-      localStorage.getItem(`starterPrefs_${loggedInUser?.username}`) ?? "{}",
+      playerStorage.getItem(`starterPrefs_${loggedInUser?.username}`) ?? "{}",
     ) as OldStarterPreferences;
 
     const newStarterPreferences: AllStarterPreferences = {};

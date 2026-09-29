@@ -2,6 +2,7 @@ import { applyAbAttrs } from "#abilities/apply-ab-attrs";
 import { globalScene } from "#app/global-scene";
 import { LapsingPersistentModifier, LapsingPokemonHeldItemModifier } from "#modifiers/modifier";
 import { BattlePhase } from "#phases/battle-phase";
+import { notifyPveBattleWon } from "#system/shell-bridge";
 
 export class BattleEndPhase extends BattlePhase {
   public readonly phaseName = "BattleEndPhase";
@@ -38,6 +39,13 @@ export class BattleEndPhase extends BattlePhase {
       if (globalScene.currentBattle.trainer) {
         globalScene.gameData.gameStats.trainersDefeated++;
       }
+
+      // Deuxième joueur, bloc en cours : la victoire est comptée ici, une fois,
+      // et l'identifiant du combat empêche qu'elle le soit deux fois si la phase
+      // est rejouée. Sans coque 2P, l'appel ne fait rien.
+      // Un duel J1 contre J2 (lot D) ne devra **pas** passer par ici : il ne
+      // compte pas comme un combat contre l'IA.
+      notifyPveBattleWon(globalScene.currentBattle);
     }
 
     // Endless graceful end

@@ -1,0 +1,277 @@
+<!doctype html>
+<!--
+  SPDX-FileCopyrightText: 2026 Pagefault Games
+
+  SPDX-License-Identifier: AGPL-3.0-only
+
+  Local two-player shell: one phone, held upright between two players.
+  The bottom half belongs to J1, the top half to J2 and is turned around so it
+  reads correctly for someone sitting opposite. Each half hosts its own game
+  frame (`../index.html?player=j1|j2`), which keeps its own storage scope.
+
+  On the home screen J1 configures the match in the bottom half (upright, the
+  half he is reading) while J2 gets a turned copy of the recap and his own
+  "ready" button. Nothing starts until both halves agree.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>PokéRogue 2Players</title>
+    <link rel="stylesheet" href="./2p.css" />
+    <link rel="stylesheet" href="./2p-gba.css" />
+  </head>
+  <body>
+    <!-- ------------------------------------------------------------ accueil -->
+    <main id="home" class="home gba-home">
+      <!-- Moitié haute : J2, retournée. Il lit le récapitulatif et valide. -->
+      <section class="half half-j2 home-half home-half-j2">
+        <div class="home-pane gba-window">
+          <h2 class="who">JOUEUR 2</h2>
+          <button id="profile-toggle-j2" class="secondary gba-menu-entry" type="button">Profil J2</button>
+          <div id="profile-card-j2" class="profile-card" hidden>
+            <div class="profile-select-row">
+              <label for="profile-select-j2">Choisir un profil</label>
+              <select id="profile-select-j2" aria-label="Profil sélectionné"></select>
+            </div>
+            <label>Nom <input id="profile-name-j2" maxlength="16" /></label>
+            <label>Icône <select id="profile-avatar-j2">
+              <option value="🎮">🎮 Manette</option><option value="⭐">⭐ Étoile</option>
+              <option value="🔥">🔥 Feu</option><option value="🌿">🌿 Plante</option>
+              <option value="💧">💧 Eau</option><option value="⚡">⚡ Éclair</option>
+            </select></label>
+            <label>Couleur <select id="profile-color-j2">
+              <option value="#9c8cff">Violet</option><option value="#ff8787">Rouge</option>
+              <option value="#68c9ff">Bleu</option><option value="#78df9a">Vert</option>
+              <option value="#ffd36e">Jaune</option>
+            </select></label>
+            <button id="profile-save-j2" type="button">Enregistrer</button>
+            <button id="profile-create-j2" type="button">Créer un profil avec ce nom</button>
+            <p class="profile-note">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
+            <button id="profile-delete-j2" class="profile-delete" type="button">Supprimer ce profil</button>
+            <fieldset id="profile-delete-confirmation-j2" class="delete-confirmation" hidden>
+              <legend id="profile-delete-message-j2"></legend>
+              <button id="profile-delete-confirm-j2" type="button">Je confirme la suppression</button>
+              <button id="profile-delete-cancel-j2" class="secondary" type="button">Annuler</button>
+            </fieldset>
+            <p id="profile-message-j2" role="status"></p>
+            <p id="profile-summary-j2"></p>
+            <p id="profile-bank-j2"></p>
+          </div>
+          <p class="recap" id="recap-j2">—</p>
+          <button id="ready-j2" class="primary" type="button">Prêt</button>
+          <p class="hint" id="ready-state-j2">En attente des réglages de J1.</p>
+        </div>
+      </section>
+
+      <div class="home-center">
+        <h1><img src="../images/logo.png" alt="PokéRogue" /><span>2 JOUEURS</span></h1>
+      </div>
+
+      <!-- Moitié basse : J1, droite. C'est lui qui configure. -->
+      <section class="half home-half home-half-j1">
+        <div class="home-pane gba-window">
+          <h2 class="who">JOUEUR 1 · CONFIGURATION</h2>
+          <button id="profile-toggle-j1" class="secondary gba-menu-entry" type="button">Profil J1</button>
+          <div id="profile-card-j1" class="profile-card" hidden>
+            <div class="profile-select-row">
+              <label for="profile-select-j1">Choisir un profil</label>
+              <select id="profile-select-j1" aria-label="Profil sélectionné"></select>
+            </div>
+            <label>Nom <input id="profile-name-j1" maxlength="16" /></label>
+            <label>Icône <select id="profile-avatar-j1">
+              <option value="🎮">🎮 Manette</option><option value="⭐">⭐ Étoile</option>
+              <option value="🔥">🔥 Feu</option><option value="🌿">🌿 Plante</option>
+              <option value="💧">💧 Eau</option><option value="⚡">⚡ Éclair</option>
+            </select></label>
+            <label>Couleur <select id="profile-color-j1">
+              <option value="#9c8cff">Violet</option><option value="#ff8787">Rouge</option>
+              <option value="#68c9ff">Bleu</option><option value="#78df9a">Vert</option>
+              <option value="#ffd36e">Jaune</option>
+            </select></label>
+            <button id="profile-save-j1" type="button">Enregistrer</button>
+            <button id="profile-create-j1" type="button">Créer un profil avec ce nom</button>
+            <p class="profile-note">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
+            <button id="profile-delete-j1" class="profile-delete" type="button">Supprimer ce profil</button>
+            <fieldset id="profile-delete-confirmation-j1" class="delete-confirmation" hidden>
+              <legend id="profile-delete-message-j1"></legend>
+              <button id="profile-delete-confirm-j1" type="button">Je confirme la suppression</button>
+              <button id="profile-delete-cancel-j1" class="secondary" type="button">Annuler</button>
+            </fieldset>
+            <p id="profile-message-j1" role="status"></p>
+            <p id="profile-summary-j1"></p>
+            <p id="profile-bank-j1"></p>
+          </div>
+
+          <section class="gba-options" aria-label="Réglages du match">
+          <label class="field" for="mode">
+            <span>Mode de jeu</span>
+            <select id="mode">
+              <option value="side-by-side">Duo libre</option>
+              <option value="blocks">Match à blocs</option>
+              <option value="quick-random">Combat rapide aléatoire</option>
+            </select>
+            <small class="field-help" id="mode-help"></small>
+          </label>
+
+          <div class="row">
+            <label class="field" for="block-size">
+              <span>Combats dans un bloc</span>
+              <select id="block-size">
+                <option value="2">2 (1 + duel)</option>
+                <option value="3">3 (2 + duel)</option>
+                <option value="4">4 (3 + duel)</option>
+                <option value="5">5 (4 + duel)</option>
+                <option value="10">10 (9 IA + duel)</option>
+                <option value="15">15 (14 + duel)</option>
+                <option value="20">20 (19 + duel)</option>
+                <option value="25">25 (24 + duel)</option>
+                <option value="30">30 (29 + duel)</option>
+              </select>
+              <small class="field-help">Avec 10 combats au total, chacun gagne 9 combats contre l'IA avant d'affronter l'autre joueur en duel.</small>
+            </label>
+            <label class="field" for="blocks">
+              <span>Nombre de blocs</span>
+              <select id="blocks">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="10">10</option>
+              </select>
+              <small class="field-help">Un bloc terminé déclenche un duel entre vous. Chaque duel gagné vaut 1 point ; les combats contre l'IA ne donnent pas de point.</small>
+            </label>
+          </div>
+
+          <div class="row">
+            <label class="field" for="bank-renforts">
+              <span>Pokémon capturés en renfort</span>
+              <select id="bank-renforts">
+                <option value="0">aucun</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+              <small class="field-help">Avant un duel, chacun peut remplacer jusqu'au nombre choisi de Pokémon par des captures de son profil. Les captures restent enregistrées.</small>
+            </label>
+            <label class="field" for="level-cap">
+              <span>Niveaux des Pokémon</span>
+              <select id="level-cap">
+                <option value="auto">Équilibrage automatique</option>
+                <option value="none">Garder les niveaux actuels</option>
+              </select>
+              <small class="field-help">En automatique, le duel s'aligne sur le joueur le moins avancé (arrondi par tranche de 5). Ce réglage ne change pas les niveaux sauvegardés.</small>
+            </label>
+          </div>
+
+          <label class="check" for="duel-on-demand">
+            <input id="duel-on-demand" type="checkbox" checked />
+            <span>Permettre un duel en Duo libre (avec point)</span>
+          </label>
+
+          <div id="quick-options" class="quick-options" hidden>
+            <label class="field" for="quick-team-mode">
+              <span>Équipes du duel</span>
+              <select id="quick-team-mode">
+                <option value="random">Pokémon totalement aléatoires, niveaux équilibrés</option>
+                <option value="balanced">Équipes équilibrées, choisies par l'ordinateur</option>
+              </select>
+              <small class="field-help" id="quick-team-help">Chaque joueur reçoit six Pokémon différents. Les deux équipes ont le même niveau.</small>
+            </label>
+            <label class="field" id="quick-level-mode-field" for="quick-level-mode">
+              <span>Niveau</span>
+              <select id="quick-level-mode">
+                <option value="random">Niveau aléatoire, identique pour tous</option>
+                <option value="fixed">Choisir le niveau</option>
+              </select>
+              <small class="field-help">En mode aléatoire, les douze Pokémon ont le même niveau, choisi entre 1 et 100.</small>
+            </label>
+            <label class="field" id="quick-level-field" for="quick-level">
+              <span>Niveau choisi (1 à 100)</span>
+              <input id="quick-level" type="number" min="1" max="100" value="50" inputmode="numeric" />
+            </label>
+          </div>
+
+          </section>
+
+          <p class="recap" id="recap-j1">—</p>
+          <!-- Match interrompu par Android : repris depuis son journal, sans repartir de zéro. -->
+          <button id="resume" class="secondary gba-menu-entry" type="button" hidden>Reprendre le match</button>
+          <button id="start" class="primary gba-menu-entry" type="button">Prêt · lancer</button>
+          <p class="hint">
+            Deux progressions séparées : sauvegardes, réglages, profils et contrôles tactiles de chacun. La pause en
+            cours de partie est commune.
+          </p>
+          <p id="rotate-hint" class="rotate-hint" hidden>Tenez le téléphone en portrait pour jouer à deux.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- -------------------------------------------------------------- arène -->
+    <section id="arena" class="arena" hidden>
+      <div class="half half-j2" id="half-j2">
+        <iframe id="frame-j2" title="Joueur 2" src="about:blank" allow="autoplay"></iframe>
+        <!-- Bandeau d'attente dans la zone de jeu. Le score vit hors de l'image. -->
+        <p class="wait-banner" id="wait-j2" hidden></p>
+        <div class="reinforce-panel" id="reinforce-j2" hidden>
+          <strong>Renforts du duel · J2</strong>
+          <div class="reinforce-rows"></div>
+          <button type="button" class="reinforce-submit">Valider l'équipe</button>
+        </div>
+        <div id="duel-j2" hidden></div>
+      </div>
+
+      <div class="dashboard dashboard-j2"><span class="tag" id="tag-j2">J2</span></div>
+
+      <div class="center">
+        <span class="marker" id="state-j2">J2</span>
+        <button id="pause" class="chip" type="button">Pause</button>
+        <button id="duel" class="chip duel" type="button" hidden>Duel</button>
+        <button id="quit" class="chip quiet" type="button">Quitter</button>
+        <span class="marker" id="state-j1">J1</span>
+      </div>
+
+      <div class="dashboard dashboard-j1"><span class="tag" id="tag-j1">J1</span></div>
+
+      <div class="half half-j1" id="half-j1">
+        <iframe id="frame-j1" title="Joueur 1" src="about:blank" allow="autoplay"></iframe>
+        <p class="wait-banner" id="wait-j1" hidden></p>
+        <div class="reinforce-panel" id="reinforce-j1" hidden>
+          <strong>Renforts du duel · J1</strong>
+          <div class="reinforce-rows"></div>
+          <button type="button" class="reinforce-submit">Valider l'équipe</button>
+        </div>
+        <div id="duel-j1" hidden></div>
+      </div>
+    </section>
+
+    <section id="match-result" class="match-result" role="dialog" aria-modal="true" aria-labelledby="result-title" hidden>
+      <div class="result-card">
+        <p class="result-kicker">Fin du match</p>
+        <h2 id="result-title">Victoire !</h2>
+        <p id="result-winner"></p>
+        <div class="result-teams">
+          <section aria-labelledby="result-j1-title">
+            <h3 id="result-j1-title">Équipe de J1</h3>
+            <ul id="result-team-j1"></ul>
+            <p id="result-items-j1" class="result-items"></p>
+          </section>
+          <section aria-labelledby="result-j2-title">
+            <h3 id="result-j2-title">Équipe de J2</h3>
+            <ul id="result-team-j2"></ul>
+            <p id="result-items-j2" class="result-items"></p>
+          </section>
+        </div>
+        <button id="result-home" class="primary" type="button">Retour à l'accueil</button>
+      </div>
+    </section>
+
+    <!-- Module ES : la page importe le coordinateur du match (même origine). -->
+    <script type="module" src="./2p.js"></script>
+  </body>
+</html>

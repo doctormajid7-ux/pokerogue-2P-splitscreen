@@ -196,6 +196,9 @@ export class TouchControl {
     const touchControls = document.getElementById("touchControls");
     if (touchControls) {
       touchControls.classList.add("visible");
+      if (document.documentElement.dataset.androidSolo === "true") {
+        requestAnimationFrame(() => globalScene.game.scale.refresh());
+      }
     }
   }
 }

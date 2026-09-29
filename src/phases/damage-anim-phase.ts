@@ -3,6 +3,7 @@ import { globalScene } from "#app/global-scene";
 import { settings } from "#app/global-settings-manager";
 import type { BattlerIndex } from "#enums/battler-index";
 import { HitResult } from "#enums/hit-result";
+import type { Pokemon } from "#field/pokemon";
 import { PokemonPhase } from "#phases/pokemon-phase";
 import type { DamageResult } from "#types/damage-result";
 import { fixedInt } from "#utils/common";
@@ -29,69 +30,12 @@ export class DamageAnimPhase extends PokemonPhase {
 
   start() {
     super.start();
-
-    if (this.damageResult === HitResult.ONE_HIT_KO || this.damageResult === HitResult.INDIRECT_KO) {
-      if (settings.display.enableMoveAnimations) {
-        globalScene.toggleInvert(true);
-      }
-      globalScene.time.delayedCall(fixedInt(1000), () => {
-        globalScene.toggleInvert(false);
-        this.applyDamage();
-      });
-      return;
-    }
-
-    this.applyDamage();
+    playDamageAnimation(this.getPokemon(), this.amount, this.damageResult, this.critical).then(() => this.end());
   }
 
   // TODO: this is silly, just make `amount` `public`
   public updateAmount(amount: number): void {
     this.amount = amount;
-  }
-
-  private applyDamage() {
-    switch (this.damageResult) {
-      case HitResult.EFFECTIVE:
-      case HitResult.CONFUSION:
-        audioManager.playSound("se/hit");
-        break;
-      case HitResult.EXTREMELY_EFFECTIVE:
-      case HitResult.SUPER_EFFECTIVE:
-      case HitResult.INDIRECT_KO:
-      case HitResult.ONE_HIT_KO:
-        audioManager.playSound("se/hit_strong");
-        break;
-      case HitResult.NOT_VERY_EFFECTIVE:
-      case HitResult.MOSTLY_INEFFECTIVE:
-        audioManager.playSound("se/hit_weak");
-        break;
-    }
-
-    if (this.amount) {
-      globalScene.damageNumberHandler.add(this.getPokemon(), this.amount, this.damageResult, this.critical);
-    }
-
-    if (this.damageResult !== HitResult.INDIRECT && this.amount > 0) {
-      const flashTimer = globalScene.time.addEvent({
-        delay: 100,
-        repeat: 5,
-        startAt: 200,
-        callback: () => {
-          this.getPokemon()
-            .getSprite()
-            .setVisible(flashTimer.repeatCount % 2 === 0);
-          if (!flashTimer.repeatCount) {
-            this.getPokemon()
-              .updateInfo()
-              .then(() => this.end());
-          }
-        },
-      });
-    } else {
-      this.getPokemon()
-        .updateInfo()
-        .then(() => this.end());
-    }
   }
 
   public override end() {
@@ -100,5 +44,64 @@ export class DamageAnimPhase extends PokemonPhase {
     } else {
       super.end();
     }
+  }
+}
+
+/** Play the native damage feedback without advancing or ending a phase. */
+export async function playDamageAnimation(
+  pokemon: Pokemon,
+  amount: number,
+  damageResult: DamageResult = HitResult.EFFECTIVE,
+  critical = false,
+): Promise<void> {
+  if (damageResult === HitResult.ONE_HIT_KO || damageResult === HitResult.INDIRECT_KO) {
+    if (settings.display.enableMoveAnimations) {
+      globalScene.toggleInvert(true);
+    }
+    await new Promise<void>(resolve => {
+      globalScene.time.delayedCall(fixedInt(1000), () => {
+        globalScene.toggleInvert(false);
+        resolve();
+      });
+    });
+  }
+
+  switch (damageResult) {
+    case HitResult.EFFECTIVE:
+    case HitResult.CONFUSION:
+      audioManager.playSound("se/hit");
+      break;
+    case HitResult.EXTREMELY_EFFECTIVE:
+    case HitResult.SUPER_EFFECTIVE:
+    case HitResult.INDIRECT_KO:
+    case HitResult.ONE_HIT_KO:
+      audioManager.playSound("se/hit_strong");
+      break;
+    case HitResult.NOT_VERY_EFFECTIVE:
+    case HitResult.MOSTLY_INEFFECTIVE:
+      audioManager.playSound("se/hit_weak");
+      break;
+  }
+
+  if (amount) {
+    globalScene.damageNumberHandler.add(pokemon, amount, damageResult, critical);
+  }
+
+  if (damageResult !== HitResult.INDIRECT && amount > 0) {
+    await new Promise<void>(resolve => {
+      const flashTimer = globalScene.time.addEvent({
+        delay: 100,
+        repeat: 5,
+        startAt: 200,
+        callback: () => {
+          pokemon.getSprite().setVisible(flashTimer.repeatCount % 2 === 0);
+          if (!flashTimer.repeatCount) {
+            pokemon.updateInfo().then(resolve);
+          }
+        },
+      });
+    });
+  } else {
+    await pokemon.updateInfo();
   }
 }

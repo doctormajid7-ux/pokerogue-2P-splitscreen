@@ -1,6 +1,7 @@
 import { eventBus } from "#app/event-bus";
 import { globalScene } from "#app/global-scene";
 import type { TouchControl } from "#app/touch-controls";
+import { playerStorage } from "#system/player-storage";
 import { isLandscapeMode } from "#utils/app-utils";
 import i18next from "i18next";
 
@@ -273,7 +274,7 @@ export class MoveTouchControlsHandler {
    * @returns The saved positions of the touch controls of this orientation
    */
   private getSavedPositionsOfCurrentOrientation(): ControlPosition[] {
-    const positions = localStorage.getItem(this.localStorageKey);
+    const positions = playerStorage.getItem(this.localStorageKey);
     if (!positions) {
       return [];
     }
@@ -283,7 +284,7 @@ export class MoveTouchControlsHandler {
   /** Saves the current positions of the touch controls to the local storage. */
   private saveCurrentPositions(): void {
     const pos = this.getModifiedCurrentPositions();
-    localStorage.setItem(this.localStorageKey, JSON.stringify(pos));
+    playerStorage.setItem(this.localStorageKey, JSON.stringify(pos));
   }
 
   /**

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 Pagefault Games
+
+  SPDX-License-Identifier: CC-BY-NC-SA-4.0
+-->
+<resources>
+    <!-- La page est l'interface : pas d'action barre, plein écran, noir derrière
+         le canvas pendant le chargement. -->
+    <style name="Theme.PokeRogue" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

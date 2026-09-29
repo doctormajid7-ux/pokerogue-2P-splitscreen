@@ -23,6 +23,8 @@ import type { EnemyPokemon } from "#field/pokemon";
 import { PokemonHeldItemModifier } from "#modifiers/modifier";
 import { PokemonPhase } from "#phases/pokemon-phase";
 import { achvs } from "#system/achv";
+import { PokemonData } from "#system/pokemon-data";
+import { recordProfileCapture } from "#system/shell-bridge";
 import type { OptionSelectModeConfig } from "#types/ui-types";
 import type { PartyOption } from "#ui/party-ui-handler";
 import { SummaryUiMode } from "#ui/summary-ui-handler";
@@ -311,6 +313,7 @@ export class AttemptCapturePhase extends PokemonPhase {
           });
         };
         Promise.all([pokemon.hideInfo(), gameData.setPokemonCaught(pokemon)]).then(() => {
+          recordProfileCapture(new PokemonData(pokemon));
           if (!addStatus.value) {
             removePokemon();
             end();

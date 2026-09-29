@@ -1,6 +1,7 @@
 import { globalScene } from "#app/global-scene";
 import { LANGUAGE_MAX_OPTIONS } from "#constants/app-constants";
 import { UiMode } from "#enums/ui-mode";
+import { playerStorage } from "#system/player-storage";
 import { SUPPORTED_LANGUAGE_ENTRIES } from "#system/supported-languages";
 import type { ModalConfig, OptionSelectItem, OptionSelectModeConfig } from "#types/ui-types";
 import { FormModalUiHandler } from "#ui/form-modal-ui-handler";
@@ -165,7 +166,7 @@ export abstract class LoginRegisterInfoContainerUiHandler extends FormModalUiHan
   }
 
   /**
-   * Show a panel with all usernames found in localStorage
+   * Show a panel with all usernames found in this player's storage
    * @remarks
    * Up to {@linkcode MAX_SAVES_FOR_USERNAME_PANEL} usernames are shown, otherwise P02 is triggered
    * @param config - The modal configuration
@@ -176,7 +177,7 @@ export abstract class LoginRegisterInfoContainerUiHandler extends FormModalUiHan
       return;
     }
 
-    const localStorageKeys = Object.keys(localStorage);
+    const localStorageKeys = playerStorage.keys();
     const keyToFind = "data_";
     const dataKeys = localStorageKeys.filter(ls => ls.includes(keyToFind));
 
@@ -214,14 +215,14 @@ export abstract class LoginRegisterInfoContainerUiHandler extends FormModalUiHan
   }
 
   /**
-   * Collect the user's save files from localStorage and download them as a zip file
+   * Collect the user's save files from this player's storage and download them as a zip file
    * @remarks
    * Used as the `pointerDown` callback for the save download image
    * @param config - The modal configuration
    */
   private async downloadSaves(config: ModalConfig): Promise<void> {
     // find all data_ and sessionData keys, put them in a .txt file and download everything in a single zip
-    const localStorageKeys = Object.keys(localStorage);
+    const localStorageKeys = playerStorage.keys();
     const keyToFind = "data_";
     const sessionKeyToFind = "sessionData";
     const dataKeys = localStorageKeys.filter(ls => ls.includes(keyToFind));
@@ -235,10 +236,10 @@ export abstract class LoginRegisterInfoContainerUiHandler extends FormModalUiHan
     const zip = new JSZip();
     // Bang is safe here because of the filter above
     for (const dataKey of dataKeys) {
-      zip.file(dataKey + ".prsv", localStorage.getItem(dataKey)!);
+      zip.file(dataKey + ".prsv", playerStorage.getItem(dataKey)!);
     }
     for (const sessionKey of sessionKeys) {
-      zip.file(sessionKey + ".prsv", localStorage.getItem(sessionKey)!);
+      zip.file(sessionKey + ".prsv", playerStorage.getItem(sessionKey)!);
     }
 
     const content = await zip.generateAsync({ type: "blob" });

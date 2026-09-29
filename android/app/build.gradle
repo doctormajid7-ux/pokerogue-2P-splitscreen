@@ -1,0 +1,85 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// --- le build web dans les assets ------------------------------------------
+// `dist/` est produit par `pnpm build:app` à la racine du dépôt. La tâche
+// ci-dessous le copie dans les assets de l'APK de façon reproductible ; les
+// source maps (lourdes, inutiles sur appareil) sont exclues. Un `dist/` absent
+// échoue tôt, avec la commande à lancer.
+def wwwSource = file("$rootDir/../dist")
+def wwwAssets = file('src/main/assets/www')
+def shellSource = file("$rootDir/shell")
+
+tasks.register('prepareWww', Sync) {
+    description = 'Copy the Vite build and 2P shell into the APK assets.'
+    from(wwwSource) {
+        exclude '**/*.map'
+    }
+    from(shellSource) {
+        into 'shell'
+    }
+    into wwwAssets
+    doFirst {
+        if (!new File(wwwSource, 'index.html').isFile()) {
+            throw new GradleException(
+                "missing ${wwwSource}/index.html\nbuild the web app first:\n" +
+                "    pnpm install --frozen-lockfile && pnpm build:app")
+        }
+        if (!new File(shellSource, '2p.html').isFile()) {
+            throw new GradleException("missing ${shellSource}/2p.html")
+        }
+    }
+}
+
+android {
+    namespace 'org.pokerogue.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'org.pokerogue.app'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        // Aligné sur la version de package.json (pokemon-rogue-battle).
+        versionName '1.12.1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    androidResources {
+        // Médias déjà compressés : les stocker tels quels accélère le build
+        // et évite un déflate inutile dans l'APK.
+        noCompress += ['m4a', 'mp3', 'wav', 'mp4', 'ttf']
+    }
+}
+
+tasks.named('preBuild').configure {
+    dependsOn 'prepareWww'
+}
+
+// La fusion des assets doit attendre tout ce qui écrit dedans, sinon un
+// assembleDebug en une passe peut empaqueter un www périmé.
+tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }.configureEach {
+    dependsOn 'prepareWww'
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

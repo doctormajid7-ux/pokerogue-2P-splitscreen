@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 Pagefault Games
+
+  SPDX-License-Identifier: CC-BY-NC-SA-4.0
+-->
+<resources>
+    <string name="app_name">PokéRogue</string>
+    <string name="app_name_2p">PokéRogue 2Players</string>
+    <string name="error_title">Impossible de démarrer le jeu</string>
+    <string name="error_missing">Ce téléphone ne fournit pas les capacités nécessaires : %1$s. Mettez à jour Android System WebView et réessayez.</string>
+    <string name="error_retry">Réessayer</string>
+</resources>

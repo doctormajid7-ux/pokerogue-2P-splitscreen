@@ -18,6 +18,12 @@ body,
   touch-action: none;
 }
 
+/* In each phone half, enlarge the keys while keeping the two pads apart. */
+html[data-android2p="true"] #touchControls {
+  --controls-size: min(20dvh, 22vw);
+  --controls-padding: 6px;
+}
+
 html[data-ui-theme="DEFAULT"][data-window-type="RED_ORANGE"] {
   --color-base: #6b5a73;
   --color-light: #DD5748;
@@ -100,6 +106,102 @@ body {
 
 #app > div:first-child {
   transform-origin: center !important;
+}
+
+/* Android solo: apply the user-adjustable pinch zoom to canvas and DOM overlay. */
+html[data-android-solo="true"] #app {
+  overflow: hidden;
+}
+
+html[data-android-solo="true"] #app > canvas,
+html[data-android-solo="true"] #app > div:first-child {
+  scale: var(--android-solo-zoom, 1);
+  transform-origin: center !important;
+}
+
+/* Android solo: the game fits above a dedicated control dock. */
+@media (orientation: portrait) {
+  html[data-android-solo="true"] {
+    --solo-dock-height: clamp(180px, 32dvh, 260px);
+  }
+
+  html[data-android-solo="true"] body {
+    min-height: 100dvh;
+  }
+
+  html[data-android-solo="true"] #app {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  html[data-android-solo="true"] body:has(> #touchControls.visible) #app {
+    width: 100%;
+    height: calc(100dvh - var(--solo-dock-height));
+    min-height: 0;
+    align-items: center !important;
+    overflow: hidden;
+  }
+
+  html[data-android-solo="true"] body:has(> #touchControls.visible) #app > div:first-child {
+    transform-origin: center !important;
+  }
+
+  html[data-android-solo="true"] #touchControls {
+    --controls-size: clamp(64px, 9dvh, 88px);
+    --controls-padding: max(12px, env(safe-area-inset-bottom));
+  }
+
+  html[data-android-solo="true"] #touchControls.visible::before {
+    content: "";
+    position: fixed;
+    inset: auto 0 0;
+    height: var(--solo-dock-height);
+    background: #25212e;
+    border-top: 2px solid #716982;
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@media (orientation: landscape) {
+  html[data-android-solo="true"] {
+    --solo-side-width: clamp(155px, 23vw, 220px);
+  }
+
+  html[data-android-solo="true"] body:has(> #touchControls.visible) #app {
+    width: calc(100vw - 2 * var(--solo-side-width));
+    height: 100dvh;
+    align-items: center !important;
+    overflow: hidden;
+  }
+
+  html[data-android-solo="true"] #touchControls {
+    --controls-size: clamp(54px, 15dvh, 72px);
+  }
+
+  html[data-android-solo="true"] #control-group-cancel {
+    width: calc(var(--controls-size) * 1.2);
+  }
+
+  html[data-android-solo="true"] #apadCancel {
+    width: calc(var(--controls-size) * 1.2);
+    height: calc(var(--controls-size) * 1.2);
+  }
+
+  html[data-android-solo="true"] #apadMenu {
+    width: calc(var(--controls-size) * 0.95);
+    height: calc(var(--controls-size) * 0.6);
+  }
+
+  html[data-android-solo="true"] #apadMenu > .apad-label {
+    font-size: calc(var(--controls-size) * 0.55);
+  }
+}
+
+html[data-android-solo="true"] #touchControls .control-group {
+  z-index: 1;
 }
 
 /*

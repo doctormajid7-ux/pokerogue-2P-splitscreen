@@ -5,6 +5,7 @@ import { PlayerGender } from "#enums/player-gender";
 import { SpriteSet } from "#enums/sprite-set";
 import { UiTheme } from "#enums/ui-theme";
 import { version } from "#package.json";
+import { playerStorage } from "#system/player-storage";
 import { applySettingsVersionMigration } from "#system/version-converter";
 import type { Settings, SettingsCategory, UserFacingSettings } from "#types/settings";
 
@@ -111,13 +112,13 @@ export class SettingsManager {
 
   /** Saves settings to local storage at {@linkcode lsKey} */
   private saveToLocalStorage() {
-    localStorage.setItem(this.lsKey, JSON.stringify(this._settings));
+    playerStorage.setItem(this.lsKey, JSON.stringify(this._settings));
     eventBus.emit("settings/saved", this._settings, this.lsKey);
   }
 
   /** Loads and populates settings from local storage at {@linkcode lsKey} */
   private loadFromLocalStorage() {
-    const lsItem = localStorage.getItem(this.lsKey);
+    const lsItem = playerStorage.getItem(this.lsKey);
 
     if (lsItem) {
       try {

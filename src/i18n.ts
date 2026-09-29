@@ -1,5 +1,6 @@
 import { timedEventManager } from "#app/global-event-manager";
 import { namespaceMap } from "#app/i18n-namespace-map";
+import { playerStorage } from "#system/player-storage";
 import { SUPPORTED_LANGUAGES } from "#system/supported-languages";
 import { getCachedUrl } from "#utils/fetch-utils";
 import { toKebabCase } from "#utils/strings";
@@ -178,7 +179,9 @@ await i18next
       },
       defaultNS: "menu",
       detection: {
-        lookupLocalStorage: "prLang",
+        // i18next owns this key directly: hand it the scoped name so each
+        // player's language lives in its own storage slot.
+        lookupLocalStorage: playerStorage.scopeKey("prLang"),
         caches: ["localStorage"],
         order: ["localStorage", "navigator"],
       },
@@ -199,7 +202,13 @@ await i18next
     },
     async () => {
       i18next.services.formatter?.add("money", i18nMoneyFormatter);
-      await initFonts(localStorage.getItem("prLang") ?? undefined);
+      let preferredLanguage: string | undefined;
+      try {
+        preferredLanguage = playerStorage.getItem("prLang") ?? undefined;
+      } catch {
+        // Font choice is optional (for example after the test DOM is torn down).
+      }
+      await initFonts(preferredLanguage);
     },
   );
 

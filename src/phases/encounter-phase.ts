@@ -35,6 +35,7 @@ import { doTrainerExclamation } from "#mystery-encounters/encounter-phase-utils"
 import { getGoldenBugNetSpecies } from "#mystery-encounters/encounter-pokemon-utils";
 import { BattlePhase } from "#phases/battle-phase";
 import { achvs } from "#system/achv";
+import { holdForDuel, recordProfileSeen } from "#system/shell-bridge";
 import { randSeedInt, randSeedItem } from "#utils/common";
 import i18next from "i18next";
 
@@ -140,6 +141,7 @@ export class EncounterPhase extends BattlePhase {
         }
       }
       const enemyPokemon = globalScene.getEnemyParty()[e];
+      recordProfileSeen(enemyPokemon.species.speciesId);
       if (e < (battle.double ? 2 : 1)) {
         enemyPokemon.setX(-66 + enemyPokemon.getFieldPositionOffset()[0]);
         enemyPokemon.fieldSetup(true);
@@ -304,8 +306,18 @@ export class EncounterPhase extends BattlePhase {
               if (!success) {
                 return globalScene.reset(true);
               }
-              this.doEncounter();
-              globalScene.resetSeed();
+              const startEncounter = () => {
+                this.doEncounter();
+                globalScene.resetSeed();
+              };
+              // Deuxième joueur arrivé à la frontière de son bloc : c'est ici que
+              // l'arrêt est sûr — récompense prise, sauvegarde écrite, combat pas
+              // encore commencé. Le pont gardera le jeu endormi jusqu'au duel ;
+              // sans coque 2P, l'appel ne fait rien.
+              if (holdForDuel(startEncounter)) {
+                return;
+              }
+              startEncounter();
             });
         }
       });
