@@ -49,7 +49,7 @@ Répartition de `dist/` :
 Plus gros chunks JS : `loading-scene` 2,6 Mio, `sprite-set` 1,2 Mio, `index` 1,2 Mio, `battle-scene` 956 Kio.
 Malgré `publicDir: false` en build, les ressources `assets/` et `locales/` **sont bien copiées** dans `dist/` par le plugin `minify-public-json-files` : `dist/` est autonome.
 
-Manifeste complet par fichier (sha256 + taille) : `docs/android-audit/A1-dist-manifest.tsv`.
+Le manifeste exhaustif par fichier a été retiré du dépôt : c'était un relevé généré pour ce build historique, inutile à la compilation ou à la maintenance. Les tailles et constats synthétiques utiles sont conservés dans ce rapport.
 
 Fichiers non web copiés par erreur depuis les sous-modules (à exclure de la copie Gradle du lot A2) : 18 `*.bat`, 3 `*.ps1`, 3 `*.tps` (projets TexturePacker), présents sous `dist/images/**`. `dist/fonts/item-count.xml` est à vérifier avant exclusion (peut servir au bitmap font).
 
