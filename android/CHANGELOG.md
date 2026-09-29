@@ -38,7 +38,7 @@ This changelog lists changes in this Android adaptation compared with the origin
 - Kept player duels in the game's battle scene with its sprites, animations, health bars, and messages. Attacks resolve one at a time.
 - Added the normal **Struggle** fallback when a duel Pokémon has no usable PP, including its recoil damage.
 - Added a local capture bank for duel preparation and removed the fixed 96-entry limit. Its practical capacity depends on the app's local browser storage quota.
-- Localized the two-player setup and profile menus in all 24 languages supported by the game. They follow the language preference of the most recently opened solo profile, or the phone's language when no preference is saved; a setup-screen dropdown can override this. Each game screen continues to follow its own profile language.
+- Localized the two-player setup, profile menus, and shared pause/quit controls in all 24 languages supported by the game. They follow the language preference of the most recently opened solo profile, or the phone's language when no preference is saved; a setup-screen dropdown can override this. Each game screen continues to follow its own profile language.
 - Fixed a delayed waiting message that could cover the start of a duel turn after both players had chosen. Turn failures now report their cause to the shell so an interrupted duel can be retried.
 - Added the game's return/send-out messages when a player switches Pokémon during a duel and slightly increased the move announcement pause.
 

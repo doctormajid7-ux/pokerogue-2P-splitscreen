@@ -539,7 +539,7 @@ import {
   }
 
   function renderState(player) {
-    const labels = { idle: "", ready: "prêt", paused: "pause" };
+    const labels = { idle: "", ready: t("readyState"), paused: t("pausedState") };
     const label = labels[player.state] ?? "";
     player.marker.textContent = `${player.id.toUpperCase()}${label ? ` · ${label}` : ""}`;
     player.marker.classList.toggle("ready", player.state === "ready");
@@ -1019,6 +1019,11 @@ import {
     }
     quickTeamHelp.textContent =
       fields.quickTeamMode.value === "balanced" ? t("quickHelpBalanced") : t("quickHelpRandom");
+    pauseButton.textContent = t(paused ? "resume" : "pause");
+    quitButton.textContent = t("quit");
+    for (const player of players) {
+      renderState(player);
+    }
     renderAgreementLabels();
     renderResume();
   }
@@ -1844,7 +1849,7 @@ import {
     resultScreen.hidden = true;
     pendingProfileBattles.j1 = [];
     pendingProfileBattles.j2 = [];
-    pauseButton.textContent = "Pause";
+    pauseButton.textContent = t("pause");
 
     for (const player of players) {
       player.state = "idle";
@@ -2034,7 +2039,7 @@ import {
 
   function setPaused(next) {
     paused = next;
-    pauseButton.textContent = paused ? "Reprendre" : "Pause";
+    pauseButton.textContent = t(paused ? "resume" : "pause");
     broadcast(paused ? "shell/pause" : "shell/resume");
     // La coque ne suppose pas l'état d'un cadre : il l'annonce lui-même.
     for (const player of players) {
@@ -2063,7 +2068,7 @@ import {
     }
     matchId = null;
     paused = false;
-    pauseButton.textContent = "Pause";
+    pauseButton.textContent = t("pause");
     for (const player of players) {
       player.armed = false;
       player.parked = false;
