@@ -10,6 +10,21 @@ This guide is for players. The Android app contains the PokéRogue game and can 
 
 Read this guide in [French](./README.fr.md). For changes in this Android build, see the [changelog](./CHANGELOG.md).
 
+## Android version features
+
+- One APK installs both the **PokéRogue** solo launcher and the **PokéRogue 2Players** launcher.
+- Play offline: the game and its resources are included, and saves remain on the phone.
+- In solo mode, the screen adapts to portrait and landscape, supports pinch-to-zoom, and lets you move touch controls. Control layouts are saved separately for each orientation.
+- Play locally in split screen on one phone. Each player gets an independently oriented half of the screen, their own touch controls, profile, save data, and language.
+- Choose from **Free Duo**, **Block Match**, and **Random Quick Battle**, with AI progression and player duels where the selected mode calls for them.
+- Continue the same two-player profile in solo mode, including its progress and captured Pokémon.
+- Two-player battles use the game's regular animated battle scene. In two-player mode, one background music track plays while sound effects from both battles remain active.
+- The setup menus follow the language chosen in solo mode or the phone's language. Background music is encoded at 32 kbit/s or lower to reduce app size.
+
+## Original PokéRogue project
+
+PokéRogue is the original browser game by Pagefault Games. Visit the [original game website](https://pokerogue.net/), the [Pagefault Games GitHub page](https://github.com/pagefaultgames), or the [original source repository](https://github.com/pagefaultgames/pokerogue). This Android fork adds Android support and local two-player features.
+
 ## Install the app
 
 Android 7.0 or newer is required, along with Android System WebView and working graphics acceleration. If the app reports that a required feature is missing, update **Android System WebView** from the Play Store and reopen the game.
