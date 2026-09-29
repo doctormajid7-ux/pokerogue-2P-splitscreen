@@ -17,10 +17,42 @@ PokéRogue is a browser based Pokémon fangame heavily inspired by the roguelite
 
 # Android version
 
-This fork adds an offline Android app, local two-player split-screen play, and
-profile-based saves. See the [Android player guide](./android/README.md) in
-English or [French](./android/README.fr.md). Changes from the original browser
+This community fork adds an offline Android app with two launchers: **PokéRogue**
+for solo play and **PokéRogue 2Players** for local play on one phone.
+
+## Android features
+
+- Play solo offline, with the game and its resources included in the app.
+- Adjust the solo screen for portrait or landscape, pinch to zoom, and move the
+  touch controls. The control layout is saved separately for each orientation.
+- Play split-screen with two people sharing one phone. Each player has their own
+  screen half, touch controls, profile, save data, and game language. The upper
+  screen is rotated for the player sitting opposite.
+- Choose from three two-player modes:
+  - **Free Duo:** progress independently against the AI, with the option to play
+    scored duels against each other.
+  - **Block Match:** progress against the AI and duel after each block of
+    battles.
+  - **Random Quick Battle:** start immediately with computer-generated teams.
+    Pick fully random teams at a shared random level, or balanced teams at a
+    chosen or random level.
+- Continue a two-player profile's progress in solo mode, including captured
+  Pokémon.
+- Two-player duels use the game's regular animated battle scenes. One background
+  music track plays while sound effects from both battles remain active.
+- The setup menus follow the language selected in solo mode, using the phone's
+  language when no preference is saved. Background music is encoded at 32 kbit/s
+  or lower to reduce app size.
+
+For installation and gameplay details, read the [Android player guide](./android/README.md)
+in English or [French](./android/README.fr.md). Changes from the original browser
 game are listed in the [Android changelog](./android/CHANGELOG.md).
+
+## Original PokéRogue project
+
+PokéRogue is the original browser game created by Pagefault Games. Visit the
+[original game website](https://pokerogue.net/) or the [Pagefault Games GitHub page](https://github.com/pagefaultgames).
+Browse the [original source repository](https://github.com/pagefaultgames/pokerogue).
 
 # Contributing
 

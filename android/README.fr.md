@@ -10,21 +10,6 @@ Ce guide s'adresse aux joueurs. L'application Android contient PokéRogue et peu
 
 Read this guide in [English](./README.md). Pour les changements de cette version Android, consultez le [changelog](./CHANGELOG.md).
 
-## Fonctionnalités de cette version Android
-
-- Un seul APK installe les deux entrées : **PokéRogue** pour jouer seul et **PokéRogue 2Players** pour jouer à deux.
-- Jouez hors ligne : le jeu et ses ressources sont intégrés à l'application, et les sauvegardes restent sur le téléphone.
-- En solo, l'écran s'adapte au portrait et au paysage, le zoom se règle avec deux doigts et les commandes tactiles peuvent être déplacées. Les positions des commandes sont mémorisées séparément selon l'orientation.
-- Jouez à deux en écran partagé sur un même téléphone. Chacun dispose d'une moitié orientée pour lui, de ses propres commandes tactiles, profil, sauvegardes et langue.
-- Choisissez entre **Duo libre**, **Match à blocs** et **Combat rapide aléatoire**. Selon le mode, les joueurs progressent contre l'IA puis s'affrontent en duel.
-- Continuez en solo la progression d'un profil 2 joueurs, y compris les Pokémon capturés.
-- Les combats à deux utilisent la scène animée habituelle du jeu. Une seule musique joue en mode deux joueurs, tandis que les effets sonores des deux combats restent actifs.
-- Les menus de configuration suivent la langue choisie en solo ou celle du téléphone. Les musiques sont encodées à 32 kbit/s ou moins pour réduire la taille de l'application.
-
-## Projet PokéRogue d'origine
-
-PokéRogue est le jeu navigateur d'origine créé par Pagefault Games. Retrouvez le [site du jeu](https://pokerogue.net/), la [page GitHub de Pagefault Games](https://github.com/pagefaultgames) ou le [dépôt du code source d'origine](https://github.com/pagefaultgames/pokerogue). Ce fork Android ajoute la compatibilité Android et le mode local à deux joueurs.
-
 ## Installer l'application
 
 Android 7.0 ou une version plus récente est nécessaire, ainsi que Android System WebView et l'accélération graphique. Si l'application signale qu'une fonction nécessaire manque, mettez à jour **Android System WebView** depuis le Play Store, puis relancez le jeu.
