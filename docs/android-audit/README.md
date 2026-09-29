@@ -18,7 +18,7 @@ These reports preserve the technical decisions made while adding Android and loc
 
 ## Rebuilding the compact APK
 
-The audio tracks belong to the upstream `assets` Git submodule. A clean checkout restores the upstream versions. Initialize the submodules with `git submodule update --init --recursive`, then run `./android/compress-bgm.sh` before `pnpm build:app` to recreate the compact local audio files, followed by `./android/build-apk.sh`. This requires FFmpeg and FFprobe; the script leaves tracks already at or below 32 kbit/s unchanged. The parent repository keeps the upstream submodule commit pinned and provides this reproducible conversion step.
+The Android fork pins `assets` to the `android-compressed-bgm` branch of [`doctormajid7-ux/pokerogue-assets`](https://github.com/doctormajid7-ux/pokerogue-assets), where the 178 background tracks are already stored at 32 kbit/s or lower. Initialize submodules with `git submodule update --init --recursive`, then run `pnpm build:app` and `./android/build-apk.sh`. No audio conversion is needed for a fresh checkout. If assets are updated with higher-bitrate tracks, `./android/compress-bgm.sh` can re-encode them before the web build; that optional step requires FFmpeg and FFprobe and leaves tracks already at or below 32 kbit/s unchanged. The A1 report below remains a historical snapshot of the original, uncompressed asset checkout.
 
 The player-facing documentation is in [English](../../android/README.md) and [French](../../android/README.fr.md). Build instructions are in [DEVELOPMENT.md](../../android/DEVELOPMENT.md), and the user-facing changes are in the [changelog](../../android/CHANGELOG.md).
 

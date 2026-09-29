@@ -13,7 +13,7 @@ The Android app packages the web build from `dist/` in a full-screen WebView. It
 - JDK 17 or newer (OpenJDK 21 has been used).
 - Android SDK with `platforms;android-35` and `build-tools;35.0.0` or newer. The build script reads `ANDROID_HOME` and otherwise uses `~/android-sdk`.
 - Node.js and pnpm. From the repository root, install dependencies with `pnpm install --frozen-lockfile`.
-- For background music conversion: `ffmpeg`, `ffprobe`, and the `libmp3lame` encoder.
+- To re-encode background music after updating assets: `ffmpeg`, `ffprobe`, and the `libmp3lame` encoder.
 
 Initialize both Git submodules before building:
 
@@ -31,12 +31,11 @@ From the repository root:
 
 ```bash
 pnpm install --frozen-lockfile
-./android/compress-bgm.sh
 pnpm build:app
 ./android/build-apk.sh
 ```
 
-Run the compression step before the web build when creating a compact Android package. It converts background music in the local `assets` submodule to 32 kbit/s or lower; the encoded files are then copied into `dist/` and bundled by Gradle. This step requires FFmpeg and FFprobe. It changes the submodule working tree; rerun it after checking out fresh or updated assets. The source audio can be restored with `git -C assets restore audio/bgm`.
+The `assets` submodule is pinned to this fork's `android-compressed-bgm` branch, which already contains all 178 background tracks at 32 kbit/s or lower. A fresh checkout can build the compact APK directly. If you update the assets and want to reduce any new high-bitrate tracks, run `./android/compress-bgm.sh` before `pnpm build:app`; this optional step requires FFmpeg and FFprobe and changes the submodule working tree. The source audio can be restored with `git -C assets restore audio/bgm`.
 
 The web build must exist before Gradle packages it. To install the debug build on a connected device, run:
 
@@ -48,7 +47,7 @@ The APK is saved as `android/apks/PokeRogue-Android-2Players.apk`. `prepareWww` 
 
 ## Background audio assets
 
-The 178 background tracks are packaged at 32 kbit/s or lower after running the compression step. The build uses those files directly and does not package an extra high-quality copy. If assets are checked out again or updated, run the script before rebuilding. The script leaves files already at or below 32 kbit/s unchanged.
+The checked-in assets submodule already supplies 178 background tracks at 32 kbit/s or lower. The build uses those files directly and does not package an extra high-quality copy. The optional compression script leaves files already at or below 32 kbit/s unchanged.
 
 ## Two-player app structure
 
