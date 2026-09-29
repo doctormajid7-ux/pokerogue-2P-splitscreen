@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { createTwoPlayerI18n } from "./2p-i18n.js";
 /**
  * Coque 2P locale : accueil, configuration du match, lancement des deux parties
  * isolées, progression des blocs, pause commune et reprise.
@@ -80,6 +81,10 @@ import {
 } from "./player-profile.js";
 
 (() => {
+  const shellI18n = createTwoPlayerI18n();
+  const { t } = shellI18n;
+  shellI18n.applyStatic();
+
   /** Révision du protocole comprise par les deux côtés (voir `shell-protocol.ts`). */
   const PROTOCOL_VERSION = 2;
 
@@ -350,7 +355,8 @@ import {
     if (![...select.options].some(option => option.value === wanted)) {
       const option = document.createElement("option");
       option.value = wanted;
-      option.textContent = wanted;
+      option.textContent =
+        select.id === "block-size" ? t("blockOption", { total: wanted, ai: Number(wanted) - 1 }) : wanted;
       const next = [...select.options].find(existing => Number(existing.value) > Number(wanted));
       select.insertBefore(option, next ?? null);
     }
@@ -468,33 +474,24 @@ import {
   function recapText(rules) {
     if (rules.mode === "quick-random") {
       const selected = readQuickSettings();
-      const teamDescription =
-        selected.teamMode === "balanced"
-          ? "L'ordinateur choisit deux équipes de force comparable"
-          : "Les Pokémon sont tirés au hasard, avec le même niveau des deux côtés";
+      const teamDescription = selected.teamMode === "balanced" ? t("recapQuickBalanced") : t("recapQuickRandom");
       const levelDescription =
         selected.teamMode !== "balanced" || selected.levelMode === "random"
-          ? "niveau commun aléatoire"
-          : `niveau ${selected.level} pour les douze Pokémon`;
-      return `Combat rapide aléatoire : ${teamDescription} (${levelDescription}). Aucun combat contre l'IA n'est joué dans ce mode ; le match commence directement par un duel qui rapporte 1 point.`;
+          ? t("recapLevelRandom")
+          : t("recapLevelFixed", { level: selected.level });
+      return t("recapQuick", { teams: teamDescription, level: levelDescription });
     }
     if (rules.mode !== "blocks") {
-      return (
-        "Duo libre : chacun joue sa partie contre l'IA et avance à son rythme. "
-        + (rules.duelOnDemand
-          ? "Le bouton Duel permet de s'affronter quand vous le souhaitez ; le duel gagné rapporte 1 point au profil du vainqueur."
-          : "Il n'y a pas de duel prévu dans ce mode.")
-      );
+      return rules.duelOnDemand ? t("recapFree") : t("recapFreeNoDuel");
     }
     const schedule = scheduleOf(rules);
-    const plural = count => (count > 1 ? "s" : "");
-    const long = schedule.totalBattles > 200 ? " Match long : prévoyez plusieurs sessions." : "";
-    return (
-      `Dans chaque bloc, chacun gagne ${rules.blockSize - 1} combats contre l'IA, puis vous jouez un duel ensemble. `
-      + `${schedule.blocks} bloc${plural(schedule.blocks)} = ${schedule.pveBattles} combats IA par joueur `
-      + `et ${schedule.duels} duel${plural(schedule.duels)} partagé${plural(schedule.duels)}. `
-      + `Un duel gagné rapporte 1 point ; les combats IA ne rapportent pas de point.${long}`
-    );
+    const recap = t("recapBlocks", {
+      ai: rules.blockSize - 1,
+      blocks: schedule.blocks,
+      pve: schedule.pveBattles,
+      duels: schedule.duels,
+    });
+    return schedule.totalBattles > 200 ? `${recap} ${t("longMatch")}` : recap;
   }
 
   function isFrameMessage(data) {
@@ -779,11 +776,7 @@ import {
     fields.duelOnDemand.closest(".check").hidden = !free;
     quickOptions.hidden = !quick;
     updateQuickOptions();
-    modeHelp.textContent = scheduled
-      ? "Match à blocs : chacun joue contre l'IA dans sa partie. Quand les deux ont gagné les combats prévus, ils s'affrontent en duel."
-      : free
-        ? "Duo libre : chacun joue sa partie contre l'IA à son rythme. Activez l'option ci-dessous pour pouvoir lancer un duel qui rapporte 1 point."
-        : "Combat rapide : l'ordinateur prépare immédiatement deux équipes de six Pokémon, puis vous jouez un duel. Aucun profil ni progression solo n'est modifié.";
+    modeHelp.textContent = scheduled ? t("modeHelpBlocks") : free ? t("modeHelpFree") : t("modeHelpQuick");
 
     const recap = recapText(rules);
     for (const recapElement of Object.values(recaps)) {
@@ -806,9 +799,7 @@ import {
     const fixed = fields.quickLevelMode.value === "fixed";
     quickLevelModeField.hidden = !quick || !balanced;
     quickLevelField.hidden = !quick || !balanced || !fixed;
-    quickTeamHelp.textContent = balanced
-      ? "L'ordinateur crée deux équipes de six Pokémon avec des forces de base proches, puis les oppose à niveau égal."
-      : "Douze Pokémon différents sont tirés au hasard. Les deux équipes ont le même niveau, choisi au hasard entre 1 et 100.";
+    quickTeamHelp.textContent = balanced ? t("quickHelpBalanced") : t("quickHelpRandom");
     if (!balanced) {
       fields.quickLevelMode.value = "random";
     }
@@ -816,12 +807,12 @@ import {
 
   function renderAgreement() {
     const labels = {
-      j1: agreed.j1 ? "Prêt ✓ — en attente de J2" : "Prêt · lancer",
-      j2: agreed.j2 ? "Prêt ✓ — en attente de J1" : "Prêt",
+      j1: agreed.j1 ? t("readyWaitingJ2") : t("readyLaunch"),
+      j2: agreed.j2 ? t("readyWaitingJ1") : t("ready"),
     };
     readyButtons.j1.textContent = labels.j1;
     readyButtons.j2.textContent = labels.j2;
-    readyHint.textContent = agreed.j2 ? "Tu es prêt · en attente de J1." : "En attente des réglages de J1.";
+    readyHint.textContent = agreed.j2 ? t("readyHint") : t("waitingHint");
     // Le second accord lance le match : le premier joueur n'attend jamais un
     // bouton qui n'existe pas chez lui.
     if (agreed.j1 && agreed.j2) {
@@ -908,7 +899,7 @@ import {
     elements.deleteTarget = null;
     elements.deleteConfirmation.hidden = true;
     elements.deleteMessage.textContent = "";
-    elements.deleteConfirm.textContent = "Je confirme la suppression";
+    elements.deleteConfirm.textContent = t("confirmDelete");
   }
 
   function closeProfileMenus(exceptCard = null) {
@@ -944,7 +935,7 @@ import {
     elements.select.replaceChildren(
       ...listProfiles(localStorage).map(entry => {
         const label = `${entry.avatar} ${entry.displayName}`;
-        const option = new Option(entry.id === selected ? `Profil sélectionné : ${label}` : label, entry.id);
+        const option = new Option(entry.id === selected ? t("selectedProfile", { label }) : label, entry.id);
         option.disabled = entry.id === other;
         return option;
       }),
@@ -959,17 +950,24 @@ import {
     elements.color.value = profile.color ?? "#9c8cff";
     elements.toggle.textContent = `${elements.avatar.value} ${profile.displayName ?? playerId.toUpperCase()}`;
     document.getElementById(`tag-${playerId}`).style.color = elements.color.value;
-    elements.summary.textContent =
-      `${stats.pveBattlesWon ?? 0} victoires IA · vague max ${stats.bestRunWave ?? 0} · `
-      + `${stats.duelsWon ?? 0} duels gagnés / ${stats.duelsLost ?? 0} perdus / ${stats.duelsDrawn ?? 0} nuls · `
-      + `${stats.matchesWon ?? 0} matchs gagnés sur ${stats.matchesPlayed ?? 0} · `
-      + `dex ${dexEntries.length} vues / ${caughtSpecies} capturées`;
+    elements.summary.textContent = t("profileStats", {
+      pveBattlesWon: stats.pveBattlesWon ?? 0,
+      bestRunWave: stats.bestRunWave ?? 0,
+      duelsWon: stats.duelsWon ?? 0,
+      duelsLost: stats.duelsLost ?? 0,
+      duelsDrawn: stats.duelsDrawn ?? 0,
+      matchesWon: stats.matchesWon ?? 0,
+      matchesPlayed: stats.matchesPlayed ?? 0,
+      seen: dexEntries.length,
+      caught: caughtSpecies,
+    });
     const bank = Array.isArray(profile.bank) ? profile.bank : [];
     const best = [...bank].sort((a, b) => b.level - a.level).slice(0, 6);
-    elements.bank.textContent =
-      `Réserve de captures : ${bank.length} Pokémon · `
-      + (best.length === 0 ? "aucune capture" : best.map(entry => `#${entry.speciesId} niv. ${entry.level}`).join(", "))
-      + ". Ces copies peuvent remplacer des membres de l'équipe pour un duel, selon les règles du match.";
+    const bankPreview =
+      best.length === 0
+        ? t("noCaptures")
+        : best.map(entry => `#${entry.speciesId} ${t("level")} ${entry.level}`).join(", ");
+    elements.bank.textContent = `${t("captureBank", { count: bank.length })} · ${bankPreview}. ${t("bankHelp")}`;
   }
 
   /** Un combat gagné contre l'IA, annoncé par la session du joueur. */
@@ -1930,12 +1928,12 @@ import {
     }
     if (state.onDemand) {
       resumeButton.hidden = false;
-      resumeButton.textContent = "Reprendre le duel libre";
+      resumeButton.textContent = t("resumeMatch");
       return;
     }
     if (state.quickBattle) {
       resumeButton.hidden = false;
-      resumeButton.textContent = "Reprendre le combat rapide";
+      resumeButton.textContent = t("resumeMatch");
       return;
     }
     if (state.rules.mode !== "blocks") {
@@ -1945,7 +1943,7 @@ import {
     const progress = playerProgress(state, "j1");
     const score = matchScore(state);
     resumeButton.hidden = false;
-    resumeButton.textContent = `Reprendre le match — bloc ${progress.block}/${progress.totalBlocks} · ${score.j1}–${score.j2}`;
+    resumeButton.textContent = `${t("resumeMatch")} · ${progress.block}/${progress.totalBlocks} · ${score.j1}–${score.j2}`;
   }
 
   function setPaused(next) {
@@ -2171,7 +2169,7 @@ import {
     const canChangeProfile = () => {
       const pending = storedJournal();
       if (pending !== null && pending.phase !== "FINI") {
-        elements.message.textContent = "Termine ou reprends le match en cours avant de changer de profil.";
+        elements.message.textContent = t("profileBlocked");
         return false;
       }
       return true;
@@ -2203,7 +2201,7 @@ import {
         elements.avatar.value,
         elements.color.value,
       );
-      elements.message.textContent = saved ? "Profil personnalisé et enregistré." : "Entre un nom pour ce profil.";
+      elements.message.textContent = saved ? t("profileSaved") : t("enterName");
       renderProfile(playerId);
       renderProfile(playerId === "j1" ? "j2" : "j1");
     });
@@ -2213,13 +2211,13 @@ import {
       }
       resetDeleteConfirmation(elements);
       if (!createProfile(localStorage, playerId, elements.name.value)) {
-        elements.message.textContent = "Entre un nom pour le nouveau profil.";
+        elements.message.textContent = t("enterName");
         return;
       }
       customizeProfile(localStorage, playerId, elements.name.value, elements.avatar.value, elements.color.value);
       agreed.j1 = false;
       agreed.j2 = false;
-      elements.message.textContent = "Profil créé et chargé. Sa partie commence à zéro.";
+      elements.message.textContent = t("profileCreated");
       renderProfile("j1");
       renderProfile("j2");
       renderAgreement();
@@ -2232,16 +2230,15 @@ import {
       const targetId = activeProfileId(localStorage, playerId);
       const otherPlayer = playerId === "j1" ? "j2" : "j1";
       if (targetId === activeProfileId(localStorage, otherPlayer)) {
-        elements.message.textContent =
-          "Ce profil est chargé par l'autre joueur et ne peut pas être supprimé maintenant.";
+        elements.message.textContent = t("profileUsed");
         return;
       }
       const profile = readProfile(localStorage, playerId);
       elements.deleteTarget = targetId;
       elements.deleteStage = 1;
       elements.deleteConfirmation.hidden = false;
-      elements.deleteMessage.textContent = `Confirmation 1 sur 2 : supprimer ${profile.avatar} ${profile.displayName} et toutes ses sauvegardes, captures et statistiques ?`;
-      elements.deleteConfirm.textContent = "Confirmer (1/2)";
+      elements.deleteMessage.textContent = t("deleteAskFirst", { avatar: profile.avatar, name: profile.displayName });
+      elements.deleteConfirm.textContent = t("deleteButtonFirst");
       elements.message.textContent = "";
     });
     elements.deleteConfirm.addEventListener("click", () => {
@@ -2257,19 +2254,22 @@ import {
         || targetId === activeProfileId(localStorage, otherPlayer)
       ) {
         resetDeleteConfirmation(elements);
-        elements.message.textContent = "Le profil actif a changé. Recommencez la suppression depuis le bon profil.";
+        elements.message.textContent = t("profileChanged");
         return;
       }
       if (elements.deleteStage === 1) {
         const profile = readProfile(localStorage, playerId);
         elements.deleteStage = 2;
-        elements.deleteMessage.textContent = `Confirmation 2 sur 2 : dernière étape. ${profile.avatar} ${profile.displayName} et toute sa progression seront effacés définitivement.`;
-        elements.deleteConfirm.textContent = "Supprimer définitivement";
+        elements.deleteMessage.textContent = t("deleteAskSecond", {
+          avatar: profile.avatar,
+          name: profile.displayName,
+        });
+        elements.deleteConfirm.textContent = t("deleteButtonSecond");
         return;
       }
       if (elements.deleteStage !== 2 || !deleteProfile(localStorage, playerId, targetId)) {
         resetDeleteConfirmation(elements);
-        elements.message.textContent = "La suppression a échoué ; le profil n'a pas été modifié.";
+        elements.message.textContent = t("deleteFailed");
         return;
       }
       resetDeleteConfirmation(elements);
@@ -2277,13 +2277,12 @@ import {
       agreed.j2 = false;
       renderProfile("j1");
       renderProfile("j2");
-      elements.message.textContent =
-        "Profil supprimé avec ses sauvegardes et ses captures. Vérifiez le profil maintenant chargé.";
+      elements.message.textContent = t("profileDeleted");
       renderAgreement();
     });
     elements.deleteCancel.addEventListener("click", () => {
       resetDeleteConfirmation(elements);
-      elements.message.textContent = "Suppression annulée ; le profil est conservé.";
+      elements.message.textContent = t("profileCancelled");
     });
     elements.select.addEventListener("change", () => {
       resetDeleteConfirmation(elements);
@@ -2293,7 +2292,7 @@ import {
       }
       agreed.j1 = false;
       agreed.j2 = false;
-      elements.message.textContent = "Profil chargé avec sa progression et ses captures.";
+      elements.message.textContent = t("profileLoaded");
       renderProfile("j1");
       renderProfile("j2");
       renderAgreement();

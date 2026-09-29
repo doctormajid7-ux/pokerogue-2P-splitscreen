@@ -13,14 +13,14 @@
   half he is reading) while J2 gets a turned copy of the recap and his own
   "ready" button. Nothing starts until both halves agree.
 -->
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
-    <title>PokéRogue 2Players</title>
+    <title data-i18n="appTitle">PokéRogue 2Players</title>
     <link rel="stylesheet" href="./2p.css" />
     <link rel="stylesheet" href="./2p-gba.css" />
   </head>
@@ -30,111 +30,111 @@
       <!-- Moitié haute : J2, retournée. Il lit le récapitulatif et valide. -->
       <section class="half half-j2 home-half home-half-j2">
         <div class="home-pane gba-window">
-          <h2 class="who">JOUEUR 2</h2>
-          <button id="profile-toggle-j2" class="secondary gba-menu-entry" type="button">Profil J2</button>
+          <h2 class="who" data-i18n="player2Heading">JOUEUR 2</h2>
+          <button id="profile-toggle-j2" class="secondary gba-menu-entry" type="button" data-i18n="profileButton">Profil J2</button>
           <div id="profile-card-j2" class="profile-card" hidden>
             <div class="profile-select-row">
-              <label for="profile-select-j2">Choisir un profil</label>
-              <select id="profile-select-j2" aria-label="Profil sélectionné"></select>
+              <label for="profile-select-j2" data-i18n="chooseProfile">Choisir un profil</label>
+              <select id="profile-select-j2" aria-label="Profil sélectionné" data-i18n-aria-label="selectedProfileAria"></select>
             </div>
-            <label>Nom <input id="profile-name-j2" maxlength="16" /></label>
-            <label>Icône <select id="profile-avatar-j2">
-              <option value="🎮">🎮 Manette</option><option value="⭐">⭐ Étoile</option>
-              <option value="🔥">🔥 Feu</option><option value="🌿">🌿 Plante</option>
-              <option value="💧">💧 Eau</option><option value="⚡">⚡ Éclair</option>
+            <label><span data-i18n="name">Nom</span> <input id="profile-name-j2" maxlength="16" /></label>
+            <label><span data-i18n="icon">Icône</span> <select id="profile-avatar-j2">
+              <option value="🎮" data-i18n="gamepad" data-i18n-prefix="🎮 ">🎮 Manette</option><option value="⭐" data-i18n="star" data-i18n-prefix="⭐ ">⭐ Étoile</option>
+              <option value="🔥" data-i18n="fire" data-i18n-prefix="🔥 ">🔥 Feu</option><option value="🌿" data-i18n="plant" data-i18n-prefix="🌿 ">🌿 Plante</option>
+              <option value="💧" data-i18n="water" data-i18n-prefix="💧 ">💧 Eau</option><option value="⚡" data-i18n="lightning" data-i18n-prefix="⚡ ">⚡ Éclair</option>
             </select></label>
-            <label>Couleur <select id="profile-color-j2">
-              <option value="#9c8cff">Violet</option><option value="#ff8787">Rouge</option>
-              <option value="#68c9ff">Bleu</option><option value="#78df9a">Vert</option>
-              <option value="#ffd36e">Jaune</option>
+            <label><span data-i18n="color">Couleur</span> <select id="profile-color-j2">
+              <option value="#9c8cff" data-i18n="purple">Violet</option><option value="#ff8787" data-i18n="red">Rouge</option>
+              <option value="#68c9ff" data-i18n="blue">Bleu</option><option value="#78df9a" data-i18n="green">Vert</option>
+              <option value="#ffd36e" data-i18n="yellow">Jaune</option>
             </select></label>
-            <button id="profile-save-j2" type="button">Enregistrer</button>
-            <button id="profile-create-j2" type="button">Créer un profil avec ce nom</button>
-            <p class="profile-note">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
-            <button id="profile-delete-j2" class="profile-delete" type="button">Supprimer ce profil</button>
+            <button id="profile-save-j2" type="button" data-i18n="save">Enregistrer</button>
+            <button id="profile-create-j2" type="button" data-i18n="createProfile">Créer un profil avec ce nom</button>
+            <p class="profile-note" data-i18n="profileNote">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
+            <button id="profile-delete-j2" class="profile-delete" type="button" data-i18n="deleteProfile">Supprimer ce profil</button>
             <fieldset id="profile-delete-confirmation-j2" class="delete-confirmation" hidden>
               <legend id="profile-delete-message-j2"></legend>
-              <button id="profile-delete-confirm-j2" type="button">Je confirme la suppression</button>
-              <button id="profile-delete-cancel-j2" class="secondary" type="button">Annuler</button>
+              <button id="profile-delete-confirm-j2" type="button" data-i18n="confirmDelete">Je confirme la suppression</button>
+              <button id="profile-delete-cancel-j2" class="secondary" type="button" data-i18n="cancel">Annuler</button>
             </fieldset>
             <p id="profile-message-j2" role="status"></p>
             <p id="profile-summary-j2"></p>
             <p id="profile-bank-j2"></p>
           </div>
           <p class="recap" id="recap-j2">—</p>
-          <button id="ready-j2" class="primary" type="button">Prêt</button>
-          <p class="hint" id="ready-state-j2">En attente des réglages de J1.</p>
+          <button id="ready-j2" class="primary" type="button" data-i18n="ready">Prêt</button>
+          <p class="hint" id="ready-state-j2" data-i18n="waitingSettings">En attente des réglages de J1.</p>
         </div>
       </section>
 
       <div class="home-center">
-        <h1><img src="../images/logo.png" alt="PokéRogue" /><span>2 JOUEURS</span></h1>
+        <h1><img src="../images/logo.png" alt="PokéRogue" /><span data-i18n="playersTitle">2 JOUEURS</span></h1>
       </div>
 
       <!-- Moitié basse : J1, droite. C'est lui qui configure. -->
       <section class="half home-half home-half-j1">
         <div class="home-pane gba-window">
-          <h2 class="who">JOUEUR 1 · CONFIGURATION</h2>
-          <button id="profile-toggle-j1" class="secondary gba-menu-entry" type="button">Profil J1</button>
+          <h2 class="who" data-i18n="player1Heading">JOUEUR 1 · CONFIGURATION</h2>
+          <button id="profile-toggle-j1" class="secondary gba-menu-entry" type="button" data-i18n="profileButton">Profil J1</button>
           <div id="profile-card-j1" class="profile-card" hidden>
             <div class="profile-select-row">
-              <label for="profile-select-j1">Choisir un profil</label>
-              <select id="profile-select-j1" aria-label="Profil sélectionné"></select>
+              <label for="profile-select-j1" data-i18n="chooseProfile">Choisir un profil</label>
+              <select id="profile-select-j1" aria-label="Profil sélectionné" data-i18n-aria-label="selectedProfileAria"></select>
             </div>
-            <label>Nom <input id="profile-name-j1" maxlength="16" /></label>
-            <label>Icône <select id="profile-avatar-j1">
-              <option value="🎮">🎮 Manette</option><option value="⭐">⭐ Étoile</option>
-              <option value="🔥">🔥 Feu</option><option value="🌿">🌿 Plante</option>
-              <option value="💧">💧 Eau</option><option value="⚡">⚡ Éclair</option>
+            <label><span data-i18n="name">Nom</span> <input id="profile-name-j1" maxlength="16" /></label>
+            <label><span data-i18n="icon">Icône</span> <select id="profile-avatar-j1">
+              <option value="🎮" data-i18n="gamepad" data-i18n-prefix="🎮 ">🎮 Manette</option><option value="⭐" data-i18n="star" data-i18n-prefix="⭐ ">⭐ Étoile</option>
+              <option value="🔥" data-i18n="fire" data-i18n-prefix="🔥 ">🔥 Feu</option><option value="🌿" data-i18n="plant" data-i18n-prefix="🌿 ">🌿 Plante</option>
+              <option value="💧" data-i18n="water" data-i18n-prefix="💧 ">💧 Eau</option><option value="⚡" data-i18n="lightning" data-i18n-prefix="⚡ ">⚡ Éclair</option>
             </select></label>
-            <label>Couleur <select id="profile-color-j1">
-              <option value="#9c8cff">Violet</option><option value="#ff8787">Rouge</option>
-              <option value="#68c9ff">Bleu</option><option value="#78df9a">Vert</option>
-              <option value="#ffd36e">Jaune</option>
+            <label><span data-i18n="color">Couleur</span> <select id="profile-color-j1">
+              <option value="#9c8cff" data-i18n="purple">Violet</option><option value="#ff8787" data-i18n="red">Rouge</option>
+              <option value="#68c9ff" data-i18n="blue">Bleu</option><option value="#78df9a" data-i18n="green">Vert</option>
+              <option value="#ffd36e" data-i18n="yellow">Jaune</option>
             </select></label>
-            <button id="profile-save-j1" type="button">Enregistrer</button>
-            <button id="profile-create-j1" type="button">Créer un profil avec ce nom</button>
-            <p class="profile-note">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
-            <button id="profile-delete-j1" class="profile-delete" type="button">Supprimer ce profil</button>
+            <button id="profile-save-j1" type="button" data-i18n="save">Enregistrer</button>
+            <button id="profile-create-j1" type="button" data-i18n="createProfile">Créer un profil avec ce nom</button>
+            <p class="profile-note" data-i18n="profileNote">Chaque profil garde ses parties, ses captures et ses réglages. Le supprimer efface ces données après deux confirmations.</p>
+            <button id="profile-delete-j1" class="profile-delete" type="button" data-i18n="deleteProfile">Supprimer ce profil</button>
             <fieldset id="profile-delete-confirmation-j1" class="delete-confirmation" hidden>
               <legend id="profile-delete-message-j1"></legend>
-              <button id="profile-delete-confirm-j1" type="button">Je confirme la suppression</button>
-              <button id="profile-delete-cancel-j1" class="secondary" type="button">Annuler</button>
+              <button id="profile-delete-confirm-j1" type="button" data-i18n="confirmDelete">Je confirme la suppression</button>
+              <button id="profile-delete-cancel-j1" class="secondary" type="button" data-i18n="cancel">Annuler</button>
             </fieldset>
             <p id="profile-message-j1" role="status"></p>
             <p id="profile-summary-j1"></p>
             <p id="profile-bank-j1"></p>
           </div>
 
-          <section class="gba-options" aria-label="Réglages du match">
+          <section class="gba-options" aria-label="Réglages du match" data-i18n-aria-label="mode">
           <label class="field" for="mode">
-            <span>Mode de jeu</span>
+            <span data-i18n="mode">Mode de jeu</span>
             <select id="mode">
-              <option value="side-by-side">Duo libre</option>
-              <option value="blocks">Match à blocs</option>
-              <option value="quick-random">Combat rapide aléatoire</option>
+              <option value="side-by-side" data-i18n="freeDuo">Duo libre</option>
+              <option value="blocks" data-i18n="blockMatch">Match à blocs</option>
+              <option value="quick-random" data-i18n="quickBattle">Combat rapide aléatoire</option>
             </select>
             <small class="field-help" id="mode-help"></small>
           </label>
 
           <div class="row">
             <label class="field" for="block-size">
-              <span>Combats dans un bloc</span>
-              <select id="block-size">
-                <option value="2">2 (1 + duel)</option>
-                <option value="3">3 (2 + duel)</option>
-                <option value="4">4 (3 + duel)</option>
-                <option value="5">5 (4 + duel)</option>
-                <option value="10">10 (9 IA + duel)</option>
-                <option value="15">15 (14 + duel)</option>
-                <option value="20">20 (19 + duel)</option>
-                <option value="25">25 (24 + duel)</option>
-                <option value="30">30 (29 + duel)</option>
-              </select>
-              <small class="field-help">Avec 10 combats au total, chacun gagne 9 combats contre l'IA avant d'affronter l'autre joueur en duel.</small>
+                <span data-i18n="battlesInBlock">Combats dans un bloc</span>
+                <select id="block-size">
+                <option value="2" data-i18n="blockOption" data-i18n-args='{"total":2,"ai":1}'>2 (1 + duel)</option>
+                <option value="3" data-i18n="blockOption" data-i18n-args='{"total":3,"ai":2}'>3 (2 + duel)</option>
+                <option value="4" data-i18n="blockOption" data-i18n-args='{"total":4,"ai":3}'>4 (3 + duel)</option>
+                <option value="5" data-i18n="blockOption" data-i18n-args='{"total":5,"ai":4}'>5 (4 + duel)</option>
+                <option value="10" data-i18n="blockOption" data-i18n-args='{"total":10,"ai":9}'>10 (9 IA + duel)</option>
+                <option value="15" data-i18n="blockOption" data-i18n-args='{"total":15,"ai":14}'>15 (14 + duel)</option>
+                <option value="20" data-i18n="blockOption" data-i18n-args='{"total":20,"ai":19}'>20 (19 + duel)</option>
+                <option value="25" data-i18n="blockOption" data-i18n-args='{"total":25,"ai":24}'>25 (24 + duel)</option>
+                <option value="30" data-i18n="blockOption" data-i18n-args='{"total":30,"ai":29}'>30 (29 + duel)</option>
+                </select>
+              <small class="field-help" data-i18n="blockHelp">Avec 10 combats au total, chacun gagne 9 combats contre l'IA avant d'affronter l'autre joueur en duel.</small>
             </label>
             <label class="field" for="blocks">
-              <span>Nombre de blocs</span>
+                <span data-i18n="blockCount">Nombre de blocs</span>
               <select id="blocks">
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -144,55 +144,55 @@
                 <option value="6">6</option>
                 <option value="10">10</option>
               </select>
-              <small class="field-help">Un bloc terminé déclenche un duel entre vous. Chaque duel gagné vaut 1 point ; les combats contre l'IA ne donnent pas de point.</small>
+              <small class="field-help" data-i18n="blockCountHelp">Un bloc terminé déclenche un duel entre vous. Chaque duel gagné vaut 1 point ; les combats contre l'IA ne donnent pas de point.</small>
             </label>
           </div>
 
           <div class="row">
             <label class="field" for="bank-renforts">
-              <span>Pokémon capturés en renfort</span>
-              <select id="bank-renforts">
-                <option value="0">aucun</option>
+                <span data-i18n="reinforcement">Pokémon capturés en renfort</span>
+                <select id="bank-renforts">
+                <option value="0" data-i18n="none">aucun</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
               </select>
-              <small class="field-help">Avant un duel, chacun peut remplacer jusqu'au nombre choisi de Pokémon par des captures de son profil. Les captures restent enregistrées.</small>
+              <small class="field-help" data-i18n="reinforcementHelp">Avant un duel, chacun peut remplacer jusqu'au nombre choisi de Pokémon par des captures de son profil. Les captures restent enregistrées.</small>
             </label>
             <label class="field" for="level-cap">
-              <span>Niveaux des Pokémon</span>
-              <select id="level-cap">
-                <option value="auto">Équilibrage automatique</option>
-                <option value="none">Garder les niveaux actuels</option>
+                <span data-i18n="levels">Niveaux des Pokémon</span>
+                <select id="level-cap">
+                <option value="auto" data-i18n="automaticBalance">Équilibrage automatique</option>
+                <option value="none" data-i18n="keepLevels">Garder les niveaux actuels</option>
               </select>
-              <small class="field-help">En automatique, le duel s'aligne sur le joueur le moins avancé (arrondi par tranche de 5). Ce réglage ne change pas les niveaux sauvegardés.</small>
+              <small class="field-help" data-i18n="levelHelp">En automatique, le duel s'aligne sur le joueur le moins avancé (arrondi par tranche de 5). Ce réglage ne change pas les niveaux sauvegardés.</small>
             </label>
           </div>
 
           <label class="check" for="duel-on-demand">
             <input id="duel-on-demand" type="checkbox" checked />
-            <span>Permettre un duel en Duo libre (avec point)</span>
+            <span data-i18n="freeDuelPoint">Permettre un duel en Duo libre (avec point)</span>
           </label>
 
           <div id="quick-options" class="quick-options" hidden>
             <label class="field" for="quick-team-mode">
-              <span>Équipes du duel</span>
-              <select id="quick-team-mode">
-                <option value="random">Pokémon totalement aléatoires, niveaux équilibrés</option>
-                <option value="balanced">Équipes équilibrées, choisies par l'ordinateur</option>
-              </select>
-              <small class="field-help" id="quick-team-help">Chaque joueur reçoit six Pokémon différents. Les deux équipes ont le même niveau.</small>
+                <span data-i18n="duelTeams">Équipes du duel</span>
+                <select id="quick-team-mode">
+                <option value="random" data-i18n="randomTeams">Pokémon totalement aléatoires, niveaux équilibrés</option>
+                <option value="balanced" data-i18n="balancedTeams">Équipes équilibrées, choisies par l'ordinateur</option>
+                </select>
+              <small class="field-help" id="quick-team-help" data-i18n="randomTeamsHelp">Chaque joueur reçoit six Pokémon différents. Les deux équipes ont le même niveau.</small>
             </label>
             <label class="field" id="quick-level-mode-field" for="quick-level-mode">
-              <span>Niveau</span>
-              <select id="quick-level-mode">
-                <option value="random">Niveau aléatoire, identique pour tous</option>
-                <option value="fixed">Choisir le niveau</option>
-              </select>
-              <small class="field-help">En mode aléatoire, les douze Pokémon ont le même niveau, choisi entre 1 et 100.</small>
+                <span data-i18n="level">Niveau</span>
+                <select id="quick-level-mode">
+                <option value="random" data-i18n="randomLevel">Niveau aléatoire, identique pour tous</option>
+                <option value="fixed" data-i18n="chooseLevel">Choisir le niveau</option>
+                </select>
+              <small class="field-help" data-i18n="randomLevelHelp">En mode aléatoire, les douze Pokémon ont le même niveau, choisi entre 1 et 100.</small>
             </label>
             <label class="field" id="quick-level-field" for="quick-level">
-              <span>Niveau choisi (1 à 100)</span>
+                <span data-i18n="chosenLevel">Niveau choisi (1 à 100)</span>
               <input id="quick-level" type="number" min="1" max="100" value="50" inputmode="numeric" />
             </label>
           </div>
@@ -201,13 +201,13 @@
 
           <p class="recap" id="recap-j1">—</p>
           <!-- Match interrompu par Android : repris depuis son journal, sans repartir de zéro. -->
-          <button id="resume" class="secondary gba-menu-entry" type="button" hidden>Reprendre le match</button>
-          <button id="start" class="primary gba-menu-entry" type="button">Prêt · lancer</button>
-          <p class="hint">
+          <button id="resume" class="secondary gba-menu-entry" type="button" data-i18n="resumeMatch" hidden>Reprendre le match</button>
+          <button id="start" class="primary gba-menu-entry" type="button" data-i18n="readyLaunch">Prêt · lancer</button>
+          <p class="hint" data-i18n="progressHelp">
             Deux progressions séparées : sauvegardes, réglages, profils et contrôles tactiles de chacun. La pause en
             cours de partie est commune.
           </p>
-          <p id="rotate-hint" class="rotate-hint" hidden>Tenez le téléphone en portrait pour jouer à deux.</p>
+          <p id="rotate-hint" class="rotate-hint" data-i18n="rotateHint" hidden>Tenez le téléphone en portrait pour jouer à deux.</p>
         </div>
       </section>
     </main>

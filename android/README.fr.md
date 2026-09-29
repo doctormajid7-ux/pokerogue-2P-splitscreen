@@ -37,7 +37,7 @@ Ouvrez **PokéRogue 2Players** et tenez le téléphone en **portrait**, entre le
 
 Chacun touche uniquement sa moitié. Les combats utilisent la scène habituelle du jeu : arène, sprites, animations, barres de vie et messages. Pendant un duel entre joueurs, chacun choisit une action et les attaques se jouent l'une après l'autre.
 
-Les menus de configuration et de profil du mode 2 joueurs sont actuellement en français. Dans chaque écran de jeu, la langue vient du profil sélectionné. Si ce profil n'a pas encore enregistré de langue, le jeu utilise la langue du téléphone. Les deux joueurs peuvent donc jouer dans des langues différentes.
+Les menus de configuration et de profil du mode 2 joueurs suivent la langue du dernier profil ouvert en solo. Si ce profil n'a pas encore enregistré de langue, ils utilisent celle du téléphone. Dans chaque écran de jeu, la langue vient du profil sélectionné : les deux joueurs peuvent donc jouer dans des langues différentes.
 
 ### Les modes de jeu
 

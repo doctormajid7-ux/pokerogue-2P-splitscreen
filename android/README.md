@@ -37,7 +37,7 @@ Open **PokéRogue 2Players** and hold the phone upright between the players. Pla
 
 Each person touches only their own half. Battles use the game's usual battle scene, Pokémon sprites, animations, health bars, and messages. During a player duel, both players choose an action and the attacks are played one at a time.
 
-The two-player setup and profile menus are currently in French. Inside each game screen, the language comes from that player's selected profile. If the profile has no saved language preference yet, the game uses the phone's language. The two players can therefore use different game languages. The battle scenes remain the game's regular animated scenes.
+The two-player setup and profile menus follow the language used by the most recently opened solo profile. If that profile has no saved language preference, they use the phone's language. Inside each game screen, the language comes from that player's selected profile, so the two players can use different game languages. The battle scenes remain the game's regular animated scenes.
 
 ### Game modes
 

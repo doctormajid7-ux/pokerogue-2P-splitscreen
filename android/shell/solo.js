@@ -10,6 +10,7 @@ const profileList = document.getElementById("profile-list");
 const noProfiles = document.getElementById("no-profiles");
 
 function openGame(profileId) {
+  localStorage.setItem("local2p/v1/shell/solo-language-scope/v1", profileId ? `profile:${profileId}` : "solo");
   const query = new URLSearchParams({ androidSolo: "1" });
   if (profileId) {
     query.set("profile", profileId);

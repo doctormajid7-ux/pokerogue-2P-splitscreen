@@ -62,7 +62,7 @@ The Android app has two launcher entries: **PokéRogue** for solo play and **Pok
 - The result screen reads trainer names from the profiles and the final duel teams from the prepared fighters. It lists held-item labels carried into the duel. Scored Free Duo duels resume both AI runs from this screen; completed scheduled matches return to the home screen. Held-item effects and item actions are not currently simulated by the two-player duel engine.
 - Profile captures are stored in the local capture bank and are copied into a duel when selected; the source capture remains available afterward.
 
-The 2P setup and profile shell is currently French-only. The game inside each frame reads its language preference from that player's profile-scoped storage. When no preference has been saved, the game's normal language detection uses the Android WebView/browser locale, which follows the phone's language.
+The setup and profile shell follows the language preference of the last solo profile opened from `solo.html`. The launcher records either `local2p/v1/shell/solo-language-scope/v1 = profile:<id>` or `= solo`; `2p-i18n.js` then reads that profile's `prLang` or the unscoped solo `prLang`. If no saved preference is available, the shell maps the Android WebView locale to one of the game's 24 supported languages and falls back to English. The game inside each frame still reads `prLang` from that player's profile-scoped storage, so P1 and P2 can use different languages.
 
 ## Android runtime details
 
