@@ -131,6 +131,12 @@ describe("duel engine", () => {
         false,
       );
     });
+
+    it("should validate optional result-screen appearance data", () => {
+      expect(isDuelFighter(fighter("j1", { resultSpriteAtlasPath: "female/25", trainerSkin: "f" }))).toBe(true);
+      expect(isDuelFighter(fighter("j1", { resultSpriteAtlasPath: "../private/image" }))).toBe(false);
+      expect(isDuelFighter({ ...fighter("j1"), trainerSkin: "x" })).toBe(false);
+    });
   });
 
   describe("duelSeedFor", () => {

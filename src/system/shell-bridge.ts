@@ -5,6 +5,7 @@
  */
 
 import { globalScene } from "#app/global-scene";
+import { settings } from "#app/global-settings-manager";
 import { speciesDataRegistry } from "#app/global-species-data-registry";
 import type { Gender } from "#data/gender";
 import { CustomPokemonData } from "#data/pokemon-data";
@@ -731,6 +732,8 @@ function materializeFighter(side: DuelSide, members: readonly DuelMemberData[]):
       side,
       species: member.species,
       name: pokemon.getNameToRender(),
+      resultSpriteAtlasPath: pokemon.getSpriteAtlasPath(),
+      trainerSkin: settings.isPlayerFemale ? "f" : "m",
       heldItems: [...(member.heldItems ?? [])],
       level: pokemon.level,
       appearance: {

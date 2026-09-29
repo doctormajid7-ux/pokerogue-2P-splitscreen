@@ -4,36 +4,36 @@
 
   SPDX-License-Identifier: AGPL-3.0-only
 -->
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
-    <title>PokéRogue — Solo</title>
+    <title data-i18n="soloTitle">PokéRogue — Solo</title>
     <link rel="stylesheet" href="./solo.css" />
   </head>
   <body>
     <main>
       <header>
         <h1>PokéRogue</h1>
-        <p class="subtitle">Mode solo</p>
+        <p class="subtitle" data-i18n="soloSubtitle">Mode solo</p>
       </header>
 
       <section aria-labelledby="profile-heading">
-        <h2 id="profile-heading">Choisir une progression</h2>
-        <p>Un profil 2 joueurs garde ici ses sauvegardes, Pokémon débloqués, œufs et progression.</p>
+        <h2 id="profile-heading" data-i18n="soloChooseProgress">Choisir une progression</h2>
+        <p data-i18n="soloProfileDescription">Un profil 2 joueurs garde ici ses sauvegardes, Pokémon débloqués, œufs et progression.</p>
         <div id="profile-list" class="profile-list" aria-live="polite"></div>
-        <p id="no-profiles" class="empty" hidden>Aucun profil 2 joueurs enregistré sur cet appareil.</p>
+        <p id="no-profiles" class="empty" data-i18n="soloNoProfiles" hidden>Aucun profil 2 joueurs enregistré sur cet appareil.</p>
       </section>
 
-      <div class="divider"><span>ou</span></div>
+      <div class="divider"><span data-i18n="soloOr">ou</span></div>
 
       <button id="solo-save" class="solo-save" type="button">
-        Continuer avec la sauvegarde solo actuelle
+        <span data-i18n="soloContinueSave">Continuer avec la sauvegarde solo actuelle</span>
       </button>
-      <p class="hint">Cette sauvegarde reste distincte des profils 2 joueurs.</p>
+      <p class="hint" data-i18n="soloSaveHint">Cette sauvegarde reste distincte des profils 2 joueurs.</p>
     </main>
     <script type="module" src="./solo.js"></script>
   </body>

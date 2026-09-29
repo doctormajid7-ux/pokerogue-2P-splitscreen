@@ -200,6 +200,18 @@ html[data-android-solo="true"] #app > div:first-child {
   }
 }
 
+/* Keep B at the normal action-button size in portrait. */
+@media (orientation: portrait) {
+  html[data-android-solo="true"] #control-group-cancel {
+    width: var(--controls-size);
+  }
+
+  html[data-android-solo="true"] #apadCancel {
+    width: var(--controls-size);
+    height: var(--controls-size);
+  }
+}
+
 html[data-android-solo="true"] #touchControls .control-group {
   z-index: 1;
 }

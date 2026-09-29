@@ -532,7 +532,6 @@ async function animateCommands(
         pokemonNameWithAffix: getPokemonNameWithAffix(attack.user),
         moveName: move.name,
       }),
-      800,
     );
     if (presentation !== currentPresentation) {
       return;

@@ -40,10 +40,12 @@ for solo play and **PokéRogue 2Players** for local play on one phone.
   Pokémon.
 - Two-player duels use the game's regular animated battle scenes. One background
   music track plays while sound effects from both battles remain active.
-- The two-player shell follows the language selected in solo mode by default,
-  with a dropdown to choose another language. Its pause and quit controls use
-  that same language. Background music is encoded at 32 kbit/s or lower to
-  reduce app size.
+- The solo profile picker and all two-player shell menus, messages, and result
+  screens are translated into all 24 game languages. They follow the last solo
+  profile's language by default; the
+  two-player setup also has a dropdown to choose another shared shell language.
+  Pause and quit controls use that same language. Background music is encoded at
+  32 kbit/s or lower to reduce app size.
 
 For installation and gameplay details, read the [Android player guide](./android/README.md)
 in English or [French](./android/README.fr.md). Changes from the original browser

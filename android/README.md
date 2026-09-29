@@ -37,7 +37,7 @@ Open **PokéRogue 2Players** and hold the phone upright between the players. Pla
 
 Each person touches only their own half. Battles use the game's usual battle scene, Pokémon sprites, animations, health bars, and messages. During a player duel, both players choose an action and the attacks are played one at a time.
 
-The two-player setup and profile menus follow the language used by the most recently opened solo profile by default. If that profile has no saved language preference, they use the phone's language. A language dropdown on the setup screen lets you choose another language; the shared pause and quit controls use that same choice. Inside each game screen, the language comes from that player's selected profile, so the two players can use different game languages. The battle scenes remain the game's regular animated scenes.
+The solo profile picker and all two-player menus, status messages, duel controls, and result screens are translated into all 24 game languages. In Automatic mode, they follow the language used by the most recently opened solo profile; if it has no saved preference, they use the phone's language. A language dropdown on the two-player setup screen can save a different shared shell language, which is also used by the picker the next time it opens. Inside each game screen, the language comes from that player's selected profile, so the two players can use different game languages.
 
 ### Game modes
 
@@ -49,7 +49,7 @@ In **Battles in a block**, the number includes the duel. A block of 10 means tha
 
 At the start of a match, Player 1 chooses the settings and Player 2 confirms with **Ready**. Both players must confirm before the games start. If Android closes the app during a match, the home screen offers to resume it.
 
-After a scored duel, the result screen shows the winning trainer's profile name, both teams, and the items they carried into the duel. In Free Duo, choose **Resume games** to return to both AI runs; at the end of Block Match or Random Quick Battle, choose **Return home**. Items cannot be used in two-player duels yet, so the screen identifies the carried items and explains that their effects are inactive.
+After a scored duel, the result screen shows the winning trainer's profile name, both Pokémon teams with their game sprites, and each player's trainer skin. It also lists the items carried into the duel. In Free Duo, choose **Resume games** to return to both AI runs; at the end of Block Match or Random Quick Battle, choose **Return home**. Items cannot be used in two-player duels yet, so the screen explains that their effects are inactive.
 
 ## Profiles and saved progress
 

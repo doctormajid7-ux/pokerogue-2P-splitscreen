@@ -403,10 +403,54 @@ button.secondary {
   font-size: 17px;
 }
 
-.result-teams ul {
+.result-teams section.is-winner {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.result-trainer {
+  display: flex;
+  min-height: 92px;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 4px 0 8px;
+}
+
+.result-trainer-sprite {
+  width: auto;
+  height: 92px;
+  image-rendering: pixelated;
+}
+
+.result-pokemon-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 6px;
   margin: 0;
-  padding-left: 20px;
-  line-height: 1.55;
+  padding: 0;
+  list-style: none;
+}
+
+.result-pokemon-list li {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.result-pokemon-sprite {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.result-teams ul {
+  line-height: 1.4;
 }
 
 .result-items {

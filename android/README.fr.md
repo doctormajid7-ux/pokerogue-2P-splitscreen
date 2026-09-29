@@ -37,7 +37,7 @@ Ouvrez **PokéRogue 2Players** et tenez le téléphone en **portrait**, entre le
 
 Chacun touche uniquement sa moitié. Les combats utilisent la scène habituelle du jeu : arène, sprites, animations, barres de vie et messages. Pendant un duel entre joueurs, chacun choisit une action et les attaques se jouent l'une après l'autre.
 
-Les menus de configuration et de profil du mode 2 joueurs suivent par défaut la langue du dernier profil ouvert en solo. Si ce profil n'a pas encore enregistré de langue, ils utilisent celle du téléphone. Le menu de préparation permet de choisir une autre langue, qui s'applique aussi aux boutons communs de pause et de sortie. Dans chaque écran de jeu, la langue vient du profil sélectionné : les deux joueurs peuvent donc jouer dans des langues différentes.
+L'écran de sélection des profils solo et tous les menus, messages d'état, commandes de duel et écrans de résultat du mode 2 joueurs sont traduits dans les 24 langues du jeu. En mode Automatique, ils suivent la langue du dernier profil ouvert en solo ; s'il n'a pas enregistré de langue, ils utilisent celle du téléphone. Le menu de préparation permet d'enregistrer une autre langue commune pour les menus, qui sera aussi utilisée lors de la prochaine ouverture de l'écran de sélection solo. Dans chaque écran de jeu, la langue vient du profil sélectionné : les deux joueurs peuvent donc jouer dans des langues différentes.
 
 ### Les modes de jeu
 
@@ -49,7 +49,7 @@ Dans **Combats dans un bloc**, le nombre comprend le duel. Avec 10 combats au to
 
 Au démarrage, J1 règle la partie et J2 confirme avec **Prêt**. Les deux doivent confirmer avant le lancement. Si Android ferme l'application pendant un match, l'écran d'accueil propose de le reprendre.
 
-Après un duel avec score, l'écran de résultat affiche le nom du profil du dresseur gagnant, les deux équipes et les objets qu'elles portaient au début du duel. En Duo libre, choisissez **Reprendre les parties** pour retourner aux deux parties contre l'IA ; à la fin d'un Match à blocs ou d'un Combat rapide aléatoire, choisissez **Retour à l'accueil**. Les objets ne sont pas encore utilisables en duel à deux : l'écran indique ceux que les Pokémon portaient et précise que leurs effets sont inactifs.
+Après un duel avec score, l'écran de résultat affiche le nom du profil du dresseur gagnant, les sprites des Pokémon de chaque équipe, l'apparence du dresseur de chaque joueur et les objets qu'elles portaient au début du duel. En Duo libre, choisissez **Reprendre les parties** pour retourner aux deux parties contre l'IA ; à la fin d'un Match à blocs ou d'un Combat rapide aléatoire, choisissez **Retour à l'accueil**. Les objets ne sont pas encore utilisables en duel à deux : l'écran précise que leurs effets sont inactifs.
 
 ## Profils et progression
 

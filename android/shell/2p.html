@@ -31,7 +31,7 @@
       <section class="half half-j2 home-half home-half-j2">
         <div class="home-pane gba-window">
           <h2 class="who" data-i18n="player2Heading">JOUEUR 2</h2>
-          <button id="profile-toggle-j2" class="secondary gba-menu-entry" type="button" data-i18n="profileButton">Profil J2</button>
+          <button id="profile-toggle-j2" class="secondary gba-menu-entry" type="button" data-i18n="profileButton" data-i18n-args='{"player":"2"}'>Profil J2</button>
           <div id="profile-card-j2" class="profile-card" hidden>
             <div class="profile-select-row">
               <label for="profile-select-j2" data-i18n="chooseProfile">Choisir un profil</label>
@@ -75,7 +75,7 @@
       <section class="half home-half home-half-j1">
         <div class="home-pane gba-window">
           <h2 class="who" data-i18n="player1Heading">JOUEUR 1 · CONFIGURATION</h2>
-          <button id="profile-toggle-j1" class="secondary gba-menu-entry" type="button" data-i18n="profileButton">Profil J1</button>
+          <button id="profile-toggle-j1" class="secondary gba-menu-entry" type="button" data-i18n="profileButton" data-i18n-args='{"player":"1"}'>Profil J1</button>
           <div id="profile-card-j1" class="profile-card" hidden>
             <div class="profile-select-row">
               <label for="profile-select-j1" data-i18n="chooseProfile">Choisir un profil</label>
@@ -106,7 +106,7 @@
             <p id="profile-bank-j1"></p>
           </div>
 
-          <section class="gba-options" aria-label="Réglages du match" data-i18n-aria-label="mode">
+          <section class="gba-options" aria-label="Réglages du match" data-i18n-aria-label="matchSettingsAria">
           <label class="field" for="shell-language">
             <span data-i18n="language">Langue</span>
             <select id="shell-language" aria-label="Langue" data-i18n-aria-label="language">
@@ -221,13 +221,13 @@
     <!-- -------------------------------------------------------------- arène -->
     <section id="arena" class="arena" hidden>
       <div class="half half-j2" id="half-j2">
-        <iframe id="frame-j2" title="Joueur 2" src="about:blank" allow="autoplay"></iframe>
+        <iframe id="frame-j2" title="Joueur 2" data-i18n-title="playerFrameTitle" data-i18n-title-args='{"player":"J2"}' src="about:blank" allow="autoplay"></iframe>
         <!-- Bandeau d'attente dans la zone de jeu. Le score vit hors de l'image. -->
         <p class="wait-banner" id="wait-j2" hidden></p>
         <div class="reinforce-panel" id="reinforce-j2" hidden>
-          <strong>Renforts du duel · J2</strong>
+          <strong data-i18n="reinforcementHeading" data-i18n-args='{"player":"J2"}'>Renforts du duel · J2</strong>
           <div class="reinforce-rows"></div>
-          <button type="button" class="reinforce-submit">Valider l'équipe</button>
+          <button type="button" class="reinforce-submit" data-i18n="reinforcementSubmit">Valider l'équipe</button>
         </div>
         <div id="duel-j2" hidden></div>
       </div>
@@ -237,7 +237,7 @@
       <div class="center">
         <span class="marker" id="state-j2">J2</span>
         <button id="pause" class="chip" type="button" data-i18n="pause">Pause</button>
-        <button id="duel" class="chip duel" type="button" hidden>Duel</button>
+        <button id="duel" class="chip duel" type="button" data-i18n="duelButton" hidden>Duel</button>
         <button id="quit" class="chip quiet" type="button" data-i18n="quit">Quitter</button>
         <span class="marker" id="state-j1">J1</span>
       </div>
@@ -245,12 +245,12 @@
       <div class="dashboard dashboard-j1"><span class="tag" id="tag-j1">J1</span></div>
 
       <div class="half half-j1" id="half-j1">
-        <iframe id="frame-j1" title="Joueur 1" src="about:blank" allow="autoplay"></iframe>
+        <iframe id="frame-j1" title="Joueur 1" data-i18n-title="playerFrameTitle" data-i18n-title-args='{"player":"J1"}' src="about:blank" allow="autoplay"></iframe>
         <p class="wait-banner" id="wait-j1" hidden></p>
         <div class="reinforce-panel" id="reinforce-j1" hidden>
-          <strong>Renforts du duel · J1</strong>
+          <strong data-i18n="reinforcementHeading" data-i18n-args='{"player":"J1"}'>Renforts du duel · J1</strong>
           <div class="reinforce-rows"></div>
-          <button type="button" class="reinforce-submit">Valider l'équipe</button>
+          <button type="button" class="reinforce-submit" data-i18n="reinforcementSubmit">Valider l'équipe</button>
         </div>
         <div id="duel-j1" hidden></div>
       </div>
@@ -258,22 +258,24 @@
 
     <section id="match-result" class="match-result" role="dialog" aria-modal="true" aria-labelledby="result-title" hidden>
       <div class="result-card">
-        <p class="result-kicker">Fin du match</p>
-        <h2 id="result-title">Victoire !</h2>
+        <p class="result-kicker" data-i18n="resultMatchEnd">Fin du match</p>
+        <h2 id="result-title" data-i18n="resultMatchEnd">Fin du match</h2>
         <p id="result-winner"></p>
         <div class="result-teams">
           <section aria-labelledby="result-j1-title">
-            <h3 id="result-j1-title">Équipe de J1</h3>
+            <h3 id="result-j1-title" data-i18n="teamTitle" data-i18n-args='{"player":"J1"}'>Équipe de J1</h3>
+            <div class="result-trainer"><img id="result-trainer-j1" class="result-trainer-sprite" alt="" aria-hidden="true" hidden /></div>
             <ul id="result-team-j1"></ul>
             <p id="result-items-j1" class="result-items"></p>
           </section>
           <section aria-labelledby="result-j2-title">
-            <h3 id="result-j2-title">Équipe de J2</h3>
+            <h3 id="result-j2-title" data-i18n="teamTitle" data-i18n-args='{"player":"J2"}'>Équipe de J2</h3>
+            <div class="result-trainer"><img id="result-trainer-j2" class="result-trainer-sprite" alt="" aria-hidden="true" hidden /></div>
             <ul id="result-team-j2"></ul>
             <p id="result-items-j2" class="result-items"></p>
           </section>
         </div>
-        <button id="result-home" class="primary" type="button">Retour à l'accueil</button>
+        <button id="result-home" class="primary" type="button" data-i18n="resultReturnHome">Retour à l'accueil</button>
       </div>
     </section>
 

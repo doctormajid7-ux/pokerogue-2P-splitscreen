@@ -85,6 +85,10 @@ export interface DuelFighter {
   species: number;
   name: string;
   level: number;
+  /** Atlas path of this Pokémon's front sprite, used on the final result card. */
+  resultSpriteAtlasPath?: string;
+  /** Player character skin selected in this frame's game settings. */
+  trainerSkin?: "m" | "f";
   /** Appearance copied from the frozen team for the opponent's battle sprite. */
   appearance?: DuelFighterAppearance;
   /** Held item labels shown on the post-match result card. */
@@ -376,6 +380,12 @@ export function isDuelFighter(value: unknown, side?: DuelSide): value is DuelFig
     && isInteger(fighter.species, 1, Number.MAX_SAFE_INTEGER)
     && isInteger(fighter.level, 1, 1000)
     && typeof fighter.name === "string"
+    && (fighter.resultSpriteAtlasPath === undefined
+      || (typeof fighter.resultSpriteAtlasPath === "string"
+        && fighter.resultSpriteAtlasPath.length <= 200
+        && /^[a-z0-9_/-]+$/i.test(fighter.resultSpriteAtlasPath)
+        && !fighter.resultSpriteAtlasPath.split("/").includes("..")))
+    && (fighter.trainerSkin === undefined || fighter.trainerSkin === "m" || fighter.trainerSkin === "f")
     && (fighter.heldItems === undefined
       || (Array.isArray(fighter.heldItems)
         && fighter.heldItems.length <= 20

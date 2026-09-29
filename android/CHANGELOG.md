@@ -34,13 +34,15 @@ This changelog lists changes in this Android adaptation compared with the origin
 - Styled the two-player setup screen with the game's GBA-inspired pixel font, framed windows, and menu buttons. The battle screens continue to use the original animated game scenes.
 - Clarified in the setup screen how many AI battles and shared duels each match requires, and how scoring works.
 - Added a shared pause, match recovery after an interruption, score tracking, and local result history.
-- Added a result screen after scored duels and completed matches, showing the winner's profile name, both duel teams, and held items carried into the duel. In Free Duo it returns players to their AI runs; at the end of a scheduled match it returns to the home screen. Held-item effects and item actions are not yet part of two-player duels, and the screen says so.
+- Added a result screen after scored duels and completed matches, showing the winner's profile name, both Pokémon teams with their game sprites, and each player's trainer skin. Held items carried into the duel are listed; their effects are not active yet. In Free Duo the screen returns players to their AI runs; at the end of a scheduled match it returns to the home screen.
 - Kept player duels in the game's battle scene with its sprites, animations, health bars, and messages. Attacks resolve one at a time.
 - Added the normal **Struggle** fallback when a duel Pokémon has no usable PP, including its recoil damage.
 - Added a local capture bank for duel preparation and removed the fixed 96-entry limit. Its practical capacity depends on the app's local browser storage quota.
-- Localized the two-player setup, profile menus, and shared pause/quit controls in all 24 languages supported by the game. They follow the language preference of the most recently opened solo profile, or the phone's language when no preference is saved; a setup-screen dropdown can override this. Each game screen continues to follow its own profile language.
+- Localized the solo profile picker and all two-player shell screens—including progress and waiting messages, duel controls, reinforcement choices, the result screen, and pause/quit controls—in all 24 languages supported by the game. Automatic mode follows the most recently opened solo profile's language, or the phone's language when that profile has none. A setup-screen dropdown can choose a shared shell language, which also applies to the profile picker. Each game screen continues to follow its own profile language.
+- Restored the normal B touch-button size in solo portrait mode.
 - Fixed a delayed waiting message that could cover the start of a duel turn after both players had chosen. Turn failures now report their cause to the shell so an interrupted duel can be retried.
-- Added the game's return/send-out messages when a player switches Pokémon during a duel and slightly increased the move announcement pause.
+- Matched duel move-announcement timing to the game's normal battle-message delay and retained the player's manual message-clear setting.
+- Fixed duel pause/resume so its timeout and final-turn display timer stop while paused and continue with their remaining time after resume.
 
 ## Audio and app size
 

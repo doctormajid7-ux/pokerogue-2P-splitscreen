@@ -177,6 +177,7 @@ import {
     winner: document.getElementById("result-winner"),
     home: document.getElementById("result-home"),
     teams: { j1: document.getElementById("result-team-j1"), j2: document.getElementById("result-team-j2") },
+    trainers: { j1: document.getElementById("result-trainer-j1"), j2: document.getElementById("result-trainer-j2") },
     items: { j1: document.getElementById("result-items-j1"), j2: document.getElementById("result-items-j2") },
   };
 
@@ -308,9 +309,14 @@ import {
 
   /** Minuteur du tour sans accord : voir {@linkcode DUEL_WATCHDOG_MS}. */
   let duelWatchdog = null;
+  let duelWatchdogReason = null;
+  let duelWatchdogDeadline = null;
+  let duelWatchdogRemaining = null;
 
   /** Minuteur d'affichage du dernier tour : voir {@linkcode DUEL_RESULT_MS}. */
   let duelResultTimer = null;
+  let duelResultDeadline = null;
+  let duelResultRemaining = null;
 
   /**
    * Pourquoi le duel du bloc ne peut pas être joué, ou `null`.
@@ -572,17 +578,32 @@ import {
       return name;
     }
     if (journal.quickBattle && journal.phase !== "FINI") {
-      return `${name} · combat rapide aléatoire · duel`;
+      return t("dashboardQuick", { player: name });
     }
     if (journal.phase === "FINI") {
       const score = matchScore(journal);
-      const result = score.winner === "draw" ? "égalité" : `remporté par ${score.winner.toUpperCase()}`;
-      return `${name} · ${score[playerId]} pt · match ${result}`;
+      const result =
+        score.winner === "draw" ? t("dashboardDraw") : t("dashboardWinner", { player: score.winner.toUpperCase() });
+      return t("dashboardResult", {
+        player: name,
+        points: t("dashboardPoints", { count: score[playerId] }),
+        result,
+      });
     }
     const progress = playerProgress(journal, playerId);
-    const battles = progress.needed === 0 ? "manche de duel" : `${progress.battles}/${progress.needed} combats`;
-    const state = progress.atBoundary ? " · frontière" : "";
-    return `${name} · bloc ${progress.block}/${progress.totalBlocks} · ${battles} · ${progress.duelWins} pt${state}`;
+    const battles =
+      progress.needed === 0
+        ? t("duelButton")
+        : t("dashboardBattleCount", { done: progress.battles, total: progress.needed });
+    const boundary = progress.atBoundary ? t("dashboardBoundary") : "";
+    return t("dashboardBlockProgress", {
+      player: name,
+      current: progress.block,
+      total: progress.totalBlocks,
+      battles,
+      points: t("dashboardPoints", { count: progress.duelWins }),
+      boundary,
+    });
   }
 
   /**
@@ -598,19 +619,19 @@ import {
     if (journal === null) {
       return "";
     }
-    const parts = ["Duel à jouer · les deux blocs sont terminés"];
+    const parts = [t("duelPending")];
     const snapshots = players
       .filter(player => journal.duelTeams[player.id] !== null)
       .map(player => player.id.toUpperCase());
     if (snapshots.length > 0 && !duelPrepared(journal)) {
-      parts.push(`instantanés : ${snapshots.join(" ")}`);
+      parts.push(t("duelSnapshots", { players: snapshots.join(" ") }));
     }
     if (duelPrepared(journal)) {
       const cap = duelCapOf(journal);
-      parts.push(cap === null ? "niveaux réels" : `plafond ${cap}`);
+      parts.push(cap === null ? t("duelActualLevels") : t("duelLevelCap", { cap }));
       const ready = players.filter(player => player.duelReady).map(player => player.id.toUpperCase());
       if (ready.length > 0) {
-        parts.push(`prêts : ${ready.join(" ")}`);
+        parts.push(t("duelReadyPlayers", { players: ready.join(" ") }));
       }
     }
     return parts.join(" · ");
@@ -637,10 +658,10 @@ import {
     }
     const other = player.id === "j1" ? "J2" : "J1";
     if (player.parked) {
-      return `Frontière atteinte · en attente de ${other}`;
+      return t("waitBoundary", { player: other });
     }
     if (player.armed) {
-      return `Bloc terminé · ton run s'arrête avant le prochain combat`;
+      return t("waitBlockFinished");
     }
     return "";
   }
@@ -677,47 +698,156 @@ import {
         || !matchRules.duelOnDemand
         || arena.hidden
         || !players.every(player => player.state === "ready");
-      duelButton.textContent = "Duel libre · pour 1 point";
+      duelButton.textContent = t("freeDuelStart");
       return;
     }
     if (journal.onDemand && !duelRetryNeeded) {
       duelButton.hidden = false;
-      duelButton.textContent = "Annuler le duel libre";
+      duelButton.textContent = t("freeDuelCancel");
       return;
     }
     // Le bouton n'est qu'une sortie de secours, pour la manche qu'aucun des deux
     // cadres n'a pu transformer en combattant : elle est comptée nulle, et le
     // bloc suivant commence. Un duel jouable la rend invisible.
     duelButton.hidden = !duelStuck();
-    duelButton.textContent = duelRetryNeeded ? "Rejouer le duel interrompu" : "Duel impossible · manche nulle";
+    duelButton.textContent = t(duelRetryNeeded ? "duelRetry" : "duelImpossibleDraw");
   }
 
   function renderMatchResult() {
     if (finalResultSummary === null) {
       return;
     }
+    const summary = finalResultSummary;
     const winnerId = finalResultSummary.winner;
     const winner = winnerId === "draw" ? null : finalResultSummary.teams[winnerId]?.trainer;
-    resultElements.kicker.textContent = finalResultSummary.returnToRuns ? "Résultat du duel libre" : "Fin du match";
-    resultElements.title.textContent = winner === null ? "Match nul" : `Victoire de ${winner} !`;
-    resultElements.winner.textContent = `Score final : ${finalResultSummary.score.j1}–${finalResultSummary.score.j2}`;
-    resultElements.home.textContent = finalResultSummary.returnToRuns ? "Reprendre les parties" : "Retour à l'accueil";
+    resultElements.kicker.textContent = t(summary.returnToRuns ? "resultFreeDuel" : "resultMatchEnd");
+    resultElements.title.textContent = winner === null ? t("resultDraw") : t("resultVictory", { name: winner });
+    resultElements.winner.textContent = t("resultScore", summary.score);
+    resultElements.home.textContent = t(summary.returnToRuns ? "resultResumeRuns" : "resultReturnHome");
     for (const playerId of ["j1", "j2"]) {
-      const side = finalResultSummary.teams[playerId];
-      resultElements.teams[playerId].replaceChildren();
+      const side = summary.teams[playerId];
+      const teamList = resultElements.teams[playerId];
+      const teamSection = teamList.closest("section");
+      teamSection.classList.toggle("is-winner", winnerId === playerId);
+      teamList.classList.add("result-pokemon-list");
+      teamList.replaceChildren();
       for (const pokemon of side.pokemon) {
         const line = document.createElement("li");
-        line.textContent = pokemon.name;
-        resultElements.teams[playerId].append(line);
+        const sprite = document.createElement("img");
+        sprite.className = "result-pokemon-sprite";
+        sprite.alt = "";
+        sprite.hidden = true;
+        line.append(sprite, document.createTextNode(pokemon.name));
+        teamList.append(line);
+        if (pokemon.spriteAtlasPath) {
+          void loadAtlasFrameDataUrl(`pokemon/${pokemon.spriteAtlasPath}`, "0001.png").then(src => {
+            if (src !== null && finalResultSummary === summary) {
+              sprite.src = src;
+              sprite.hidden = false;
+            }
+          });
+        }
       }
-      const held = side.pokemon.flatMap(pokemon => pokemon.heldItems.map(item => `${pokemon.name} : ${item}`));
+      const trainerSprite = resultElements.trainers[playerId];
+      trainerSprite.hidden = true;
+      trainerSprite.removeAttribute("src");
+      if (side.trainerSkin === "m" || side.trainerSkin === "f") {
+        void loadAtlasFrameDataUrl(`trainer/trainer_${side.trainerSkin}_back`, "1").then(src => {
+          if (src !== null && finalResultSummary === summary) {
+            trainerSprite.src = src;
+            trainerSprite.hidden = false;
+          }
+        });
+      }
+      const held = side.pokemon.flatMap(pokemon =>
+        pokemon.heldItems.map(item => t("resultHeldItemEntry", { pokemon: pokemon.name, item })),
+      );
       resultElements.items[playerId].textContent =
-        held.length === 0
-          ? "Aucun objet porté au début du duel. Les objets ne sont pas utilisables dans les duels 2 joueurs pour le moment."
-          : `Objets portés au début du duel (non activés pendant ce duel) : ${held.join(" · ")}.`;
-      document.getElementById(`result-${playerId}-title`).textContent =
-        `${side.trainer} · équipe de ${playerId.toUpperCase()}`;
+        held.length === 0 ? t("resultItemsNone") : t("resultItems", { items: held.join(" · ") });
+      document.getElementById(`result-${playerId}-title`).textContent = t("resultTeamTitle", {
+        player: playerId.toUpperCase(),
+        name: side.trainer,
+      });
     }
+  }
+
+  const resultAtlasCache = new Map();
+
+  /** Crops one animation frame from the game's own sprite atlas. */
+  function loadAtlasFrameDataUrl(atlasPath, preferredFrame) {
+    if (!/^[a-z0-9_/-]+$/i.test(atlasPath) || atlasPath.split("/").includes("..")) {
+      return Promise.resolve(null);
+    }
+    const cacheKey = `${atlasPath}|${preferredFrame}`;
+    if (!resultAtlasCache.has(cacheKey)) {
+      resultAtlasCache.set(
+        cacheKey,
+        (async () => {
+          const atlasUrl = new URL(`../images/${atlasPath}.json`, document.baseURI);
+          const response = await fetch(atlasUrl);
+          if (!response.ok) {
+            return null;
+          }
+          const atlas = await response.json();
+          const texture = atlas.textures?.[0];
+          const frames = texture?.frames;
+          if (!texture || !Array.isArray(frames) || frames.length === 0) {
+            return null;
+          }
+          const frame =
+            frames.find(entry => entry.filename === preferredFrame)
+            ?? frames.find(entry => entry.filename === "0001.png")
+            ?? [...frames].sort((a, b) => Number.parseInt(a.filename, 10) - Number.parseInt(b.filename, 10))[0];
+          const rect = frame?.frame;
+          const sourceSize = frame?.sourceSize;
+          const spriteSourceSize = frame?.spriteSourceSize;
+          if (
+            !rect
+            || !sourceSize
+            || !spriteSourceSize
+            || ![
+              rect.x,
+              rect.y,
+              rect.w,
+              rect.h,
+              sourceSize.w,
+              sourceSize.h,
+              spriteSourceSize.x,
+              spriteSourceSize.y,
+            ].every(Number.isFinite)
+          ) {
+            return null;
+          }
+          const image = new Image();
+          image.src = new URL(texture.image, atlasUrl).href;
+          await image.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = sourceSize.w;
+          canvas.height = sourceSize.h;
+          const context = canvas.getContext("2d");
+          if (!context) {
+            return null;
+          }
+          context.imageSmoothingEnabled = false;
+          context.drawImage(
+            image,
+            rect.x,
+            rect.y,
+            rect.w,
+            rect.h,
+            spriteSourceSize.x,
+            spriteSourceSize.y,
+            rect.w,
+            rect.h,
+          );
+          return canvas.toDataURL("image/png");
+        })().catch(error => {
+          console.warn("Coque 2P : sprite de résultat indisponible", atlasPath, error);
+          return null;
+        }),
+      );
+    }
+    return resultAtlasCache.get(cacheKey);
   }
 
   function summarizeFinalDuel(winner, returnToRuns = false) {
@@ -728,8 +858,10 @@ import {
       const fighters = Array.isArray(player.fighters) ? player.fighters : [];
       teams[playerId] = {
         trainer: profile.displayName ?? playerId.toUpperCase(),
+        trainerSkin: fighters[0]?.trainerSkin ?? null,
         pokemon: fighters.map(fighter => ({
           name: fighter.name,
+          spriteAtlasPath: fighter.resultSpriteAtlasPath ?? null,
           heldItems: Array.isArray(fighter.heldItems) ? [...fighter.heldItems] : [],
         })),
       };
@@ -1022,10 +1154,45 @@ import {
     pauseButton.textContent = t(paused ? "resume" : "pause");
     quitButton.textContent = t("quit");
     for (const player of players) {
+      refreshReinforcementLabels(player);
       renderState(player);
     }
     renderAgreementLabels();
     renderResume();
+    renderDashboard();
+  }
+
+  /** Update generated reinforcement options without clearing the player's choices. */
+  function refreshReinforcementLabels(player) {
+    const options = player.reinforceOptions;
+    if (options === null) {
+      return;
+    }
+    const panel = reinforcementPanels[player.id];
+    [...panel.rows.children].forEach((row, index) => {
+      const [slot, bank] = row.querySelectorAll("select");
+      const selectedSlot = slot.value;
+      const selectedBank = bank.value;
+      slot.setAttribute("aria-label", t("reinforcementSlotAria", { index: index + 1 }));
+      bank.setAttribute("aria-label", t("reinforcementCaptureAria", { index: index + 1 }));
+      slot.options[0].textContent = t("none");
+      options.team.forEach((member, memberIndex) => {
+        const option = slot.options[memberIndex + 1];
+        if (option) {
+          option.textContent = t("reinforcementTeamOption", { species: member.speciesId, level: member.level });
+        }
+      });
+      bank.options[0].textContent = t("reinforcementChooseCapture");
+      options.bank.forEach((entry, entryIndex) => {
+        const option = bank.options[entryIndex + 1];
+        if (option) {
+          option.textContent = t("reinforcementBankOption", { species: entry.speciesId, level: entry.level });
+        }
+      });
+      slot.value = selectedSlot;
+      bank.value = selectedBank;
+    });
+    panel.submit.textContent = t(panel.submit.dataset.errorKey || "reinforcementSubmit");
   }
 
   /** Un combat gagné contre l'IA, annoncé par la session du joueur. */
@@ -1331,22 +1498,36 @@ import {
     }
     player.reinforceOptions = options;
     const panel = reinforcementPanels[player.id];
-    panel.submit.textContent = "Valider l'équipe";
+    panel.submit.dataset.errorKey = "";
+    panel.submit.textContent = t("reinforcementSubmit");
     panel.rows.replaceChildren();
     for (let index = 0; index < options.max; index++) {
       const row = document.createElement("div");
       row.className = "reinforce-row";
       const slot = document.createElement("select");
-      slot.setAttribute("aria-label", `Emplacement ${index + 1}`);
-      slot.add(new Option("Aucun remplacement", ""));
+      slot.setAttribute("aria-label", t("reinforcementSlotAria", { index: index + 1 }));
+      slot.add(new Option(t("none"), ""));
       for (const member of options.team) {
-        slot.add(new Option(`Équipe #${member.speciesId} niv. ${member.level}`, String(member.slot)));
+        slot.add(
+          new Option(
+            t("reinforcementTeamOption", { species: member.speciesId, level: member.level }),
+            String(member.slot),
+          ),
+        );
       }
       const bank = document.createElement("select");
-      bank.setAttribute("aria-label", `Capture ${index + 1}`);
-      bank.add(new Option("Choisir une capture", ""));
+      bank.setAttribute("aria-label", t("reinforcementCaptureAria", { index: index + 1 }));
+      bank.add(new Option(t("reinforcementChooseCapture"), ""));
       for (const entry of options.bank) {
-        bank.add(new Option(`Banque #${entry.speciesId} niv. ${entry.level}`, entry.entryId));
+        bank.add(
+          new Option(t("reinforcementBankOption", { species: entry.speciesId, level: entry.level }), entry.entryId),
+        );
+      }
+      for (const select of [slot, bank]) {
+        select.addEventListener("change", () => {
+          panel.submit.dataset.errorKey = "";
+          panel.submit.textContent = t("reinforcementSubmit");
+        });
       }
       row.append(slot, bank);
       panel.rows.append(row);
@@ -1368,7 +1549,8 @@ import {
         continue;
       }
       if (slot.value === "" || bank.value === "") {
-        panel.submit.textContent = "Choix incomplet · choisir un emplacement et une capture";
+        panel.submit.dataset.errorKey = "reinforcementIncomplete";
+        panel.submit.textContent = t(panel.submit.dataset.errorKey);
         return false;
       }
       choices.push({ slot: Number(slot.value), entryId: bank.value });
@@ -1377,7 +1559,8 @@ import {
       new Set(choices.map(choice => choice.slot)).size !== choices.length
       || new Set(choices.map(choice => choice.entryId)).size !== choices.length
     ) {
-      panel.submit.textContent = "Chaque emplacement et capture doit être unique";
+      panel.submit.dataset.errorKey = "reinforcementUnique";
+      panel.submit.textContent = t(panel.submit.dataset.errorKey);
       return false;
     }
     journal = saveJournal(
@@ -1666,13 +1849,9 @@ import {
 
   /** Laisse le dernier tour à l'écran, puis règle le duel. */
   function holdDuelResult() {
-    if (duelResultTimer !== null) {
-      window.clearTimeout(duelResultTimer);
-    }
-    duelResultTimer = window.setTimeout(() => {
-      duelResultTimer = null;
-      settleLiveDuel();
-    }, DUEL_RESULT_MS);
+    disarmDuelResult();
+    duelResultRemaining = DUEL_RESULT_MS;
+    resumeDuelResult();
   }
 
   /**
@@ -1799,14 +1978,39 @@ import {
    */
   function armDuelWatchdog(reason) {
     disarmDuelWatchdog();
-    duelWatchdog = window.setTimeout(() => {
+    duelWatchdogReason = reason;
+    duelWatchdogRemaining = DUEL_WATCHDOG_MS;
+    resumeDuelWatchdog();
+  }
+
+  function pauseDuelWatchdog() {
+    if (duelWatchdog !== null) {
+      window.clearTimeout(duelWatchdog);
       duelWatchdog = null;
+      duelWatchdogRemaining = Math.max(0, duelWatchdogDeadline - Date.now());
+      duelWatchdogDeadline = null;
+    }
+  }
+
+  function resumeDuelWatchdog() {
+    if (paused || duelWatchdogReason === null || duelWatchdog !== null) {
+      return;
+    }
+    const delay = duelWatchdogRemaining ?? DUEL_WATCHDOG_MS;
+    duelWatchdogRemaining = null;
+    duelWatchdogDeadline = Date.now() + delay;
+    duelWatchdog = window.setTimeout(() => {
+      const reason = duelWatchdogReason;
+      disarmDuelWatchdog();
+      if (reason === null) {
+        return;
+      }
       if (duelSession === null) {
         failDuelSetup(reason);
       } else {
         abortLiveDuel(reason);
       }
-    }, DUEL_WATCHDOG_MS);
+    }, delay);
   }
 
   function disarmDuelWatchdog() {
@@ -1814,6 +2018,32 @@ import {
       window.clearTimeout(duelWatchdog);
       duelWatchdog = null;
     }
+    duelWatchdogReason = null;
+    duelWatchdogDeadline = null;
+    duelWatchdogRemaining = null;
+  }
+
+  function pauseDuelResult() {
+    if (duelResultTimer !== null) {
+      window.clearTimeout(duelResultTimer);
+      duelResultTimer = null;
+      duelResultRemaining = Math.max(0, duelResultDeadline - Date.now());
+      duelResultDeadline = null;
+    }
+  }
+
+  function resumeDuelResult() {
+    if (paused || duelResultRemaining === null || duelResultTimer !== null) {
+      return;
+    }
+    const delay = duelResultRemaining;
+    duelResultRemaining = null;
+    duelResultDeadline = Date.now() + delay;
+    duelResultTimer = window.setTimeout(() => {
+      duelResultTimer = null;
+      duelResultDeadline = null;
+      settleLiveDuel();
+    }, delay);
   }
 
   function disarmDuelResult() {
@@ -1821,6 +2051,8 @@ import {
       window.clearTimeout(duelResultTimer);
       duelResultTimer = null;
     }
+    duelResultDeadline = null;
+    duelResultRemaining = null;
   }
 
   /** Les cadres restent visibles : chacun rend le duel dans son canvas Phaser. */
@@ -2038,12 +2270,22 @@ import {
   }
 
   function setPaused(next) {
+    if (paused === next) {
+      return;
+    }
     paused = next;
+    if (paused) {
+      pauseDuelWatchdog();
+      pauseDuelResult();
+    } else {
+      resumeDuelWatchdog();
+      resumeDuelResult();
+    }
     pauseButton.textContent = t(paused ? "resume" : "pause");
     broadcast(paused ? "shell/pause" : "shell/resume");
     // La coque ne suppose pas l'état d'un cadre : il l'annonce lui-même.
     for (const player of players) {
-      player.state = paused ? "paused" : "ready";
+      player.state = paused ? "paused" : player.parked ? "idle" : "ready";
       renderState(player);
     }
   }

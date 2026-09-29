@@ -157,6 +157,12 @@ describe("duel session", () => {
       expect(isDuelFighter({ ...fighter("j1"), side: "j3" }, "j1")).toBe(false);
     });
 
+    it("should validate optional result-screen appearance data", () => {
+      expect(isDuelFighter(fighter("j1", { resultSpriteAtlasPath: "shiny/25", trainerSkin: "m" }), "j1")).toBe(true);
+      expect(isDuelFighter(fighter("j1", { resultSpriteAtlasPath: "../private/image" }), "j1")).toBe(false);
+      expect(isDuelFighter({ ...fighter("j1"), trainerSkin: "x" }, "j1")).toBe(false);
+    });
+
     it("should accept the moves the game actually produces, status moves included", () => {
       // Une attaque de statut porte une puissance de -1 dans les tables du jeu :
       // elle ne frappe pas, mais elle reste jouable.

@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { createTwoPlayerI18n } from "./2p-i18n.js";
 import { listExistingProfiles } from "./player-profile.js";
+
+const shellI18n = createTwoPlayerI18n();
+const { t } = shellI18n;
+shellI18n.applyStatic();
 
 const profileList = document.getElementById("profile-list");
 const noProfiles = document.getElementById("no-profiles");
@@ -22,7 +27,7 @@ for (const profile of listExistingProfiles(localStorage)) {
   const button = document.createElement("button");
   button.className = "profile-button";
   button.type = "button";
-  button.setAttribute("aria-label", "Jouer en solo avec le profil " + profile.displayName);
+  button.setAttribute("aria-label", t("soloPlayWithProfile", { name: profile.displayName }));
 
   const avatar = document.createElement("span");
   avatar.className = "avatar";
@@ -33,7 +38,7 @@ for (const profile of listExistingProfiles(localStorage)) {
   const name = document.createElement("span");
   name.textContent = profile.displayName;
   const detail = document.createElement("small");
-  detail.textContent = "Progression du profil 2 joueurs";
+  detail.textContent = t("soloProfileProgress");
   copy.append(name, detail);
 
   button.append(avatar, copy);
