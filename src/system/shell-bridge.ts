@@ -17,7 +17,12 @@ import type { DuelCommand, DuelFighter, DuelSide, DuelState } from "#system/duel
 import { createDuel, duelBenchFor, duelMovesFor, duelPublicState, lockCommand, resolveTurn } from "#system/duel-engine";
 import { resolveDuelTurn } from "#system/duel-mechanics";
 import { DuelPark } from "#system/duel-park";
-import { advanceDuelPresentation, beginDuelPresentation, endDuelPresentation } from "#system/duel-presentation";
+import {
+  advanceDuelPresentation,
+  beginDuelPresentation,
+  endDuelPresentation,
+  rejectDuelChoice,
+} from "#system/duel-presentation";
 import type { BankEntryV1, DuelMemberData, DuelPlayerId, ReinforcementChoice } from "#system/duel-snapshot";
 import {
   applyLevelCap,
@@ -138,19 +143,47 @@ export function initShellBridge(game: Phaser.Game): void {
   // WebView may create an audio context for the upper iframe before the first
   // tap. Unlock it on that player's own gesture so battle effects can play even
   // though its BGM is intentionally muted in the 2P shell.
+  const sound = game.sound as unknown as { unlock?: () => void; context?: AudioContext };
+  let audioUnlockPending = false;
+  let audioUnlocked = false;
+  const removeAudioUnlockListeners = () => {
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+  };
   const unlockAudio = () => {
-    const sound = game.sound as unknown as { unlock?: () => void; context?: AudioContext };
+    if (audioUnlocked || audioUnlockPending) {
+      return;
+    }
     try {
       sound.unlock?.();
-      if (sound.context?.state === "suspended") {
-        void sound.context.resume().catch(() => undefined);
+      const context = sound.context;
+      if (context === undefined || context.state === "running") {
+        audioUnlocked = true;
+        removeAudioUnlockListeners();
+        return;
+      }
+      if (context.state !== "closed") {
+        audioUnlockPending = true;
+        void context.resume().then(
+          () => {
+            audioUnlockPending = false;
+            if (context.state === "running") {
+              audioUnlocked = true;
+              removeAudioUnlockListeners();
+            }
+          },
+          error => {
+            audioUnlockPending = false;
+            console.debug("2P audio context unlock deferred", error);
+          },
+        );
       }
     } catch (error) {
       console.debug("2P audio context unlock deferred", error);
     }
   };
-  window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
-  window.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+  window.addEventListener("pointerdown", unlockAudio, { passive: true });
+  window.addEventListener("touchstart", unlockAudio, { passive: true });
 
   window.addEventListener("message", event => {
     // Only the hosting page may drive this frame, and only on our own origin.
@@ -230,7 +263,18 @@ export function initShellBridge(game: Phaser.Game): void {
         void startDuel(event.data.duelId as string, event.data.seed ?? 0, event.data.fighters);
         break;
       case "shell/duel-turn":
-        playDuelTurn(event.data.duelId as string, event.data.turnId ?? 0, event.data.commands);
+        void playDuelTurn(event.data.duelId as string, event.data.turnId ?? 0, event.data.commands);
+        break;
+      case "shell/duel-choice-status":
+        if (
+          event.data.choiceAccepted === false
+          && duelState !== null
+          && event.data.duelId === duelState.duelId
+          && event.data.turnId === duelState.turnId
+        ) {
+          console.warn("Duel 2P : choix non reçu par la coque", event.data.reason);
+          rejectDuelChoice();
+        }
         break;
       case "shell/hello":
         reply("frame/ready");
@@ -799,7 +843,12 @@ async function startDuel(duelId: string, seed: number, fighters: unknown): Promi
         return;
       }
       window.parent.postMessage(
-        { ...frameMessage("frame/duel-choice", playerStorage.prefix, matchId), duelId, command },
+        {
+          ...frameMessage("frame/duel-choice", playerStorage.prefix, matchId),
+          duelId,
+          turnId: duelState.turnId,
+          command,
+        },
         window.location.origin,
       );
     });
@@ -827,22 +876,30 @@ async function startDuel(duelId: string, seed: number, fighters: unknown): Promi
  * @param commands - Both choices, as locked by the shell
  */
 async function playDuelTurn(duelId: string, turnId: number, commands: unknown): Promise<void> {
-  if (duelState === null || duelState.duelId !== duelId || duelState.turnId !== turnId) {
+  if (duelState === null) {
+    reportDuelFailure(duelId, turnId, "état du duel absent dans ce cadre");
+    return;
+  }
+  if (duelState.duelId !== duelId || duelState.turnId !== turnId) {
+    reportDuelFailure(duelId, turnId, `tour reçu ${turnId}, état local ${duelState.duelId}/${duelState.turnId}`);
     return;
   }
   const pair = commands as Partial<Record<DuelSide, DuelCommand>> | undefined;
   if (pair === undefined) {
+    reportDuelFailure(duelId, turnId, "choix des deux joueurs absent");
     return;
   }
   let current = duelState;
   for (const side of DUEL_PLAYER_IDS) {
     const command = pair[side];
     if (command === undefined) {
+      reportDuelFailure(duelId, turnId, `choix ${side.toUpperCase()} absent`);
       return;
     }
     const locked = lockCommand(current, side, command);
     if (!locked.accepted) {
       console.warn("Duel 2P : choix refusé", locked.reason);
+      reportDuelFailure(duelId, turnId, `choix ${side.toUpperCase()} refusé : ${locked.reason ?? "raison inconnue"}`);
       return;
     }
     current = locked.state;
@@ -860,15 +917,36 @@ async function playDuelTurn(duelId: string, turnId: number, commands: unknown): 
   );
   if (!resolved.accepted) {
     console.warn("Duel 2P : tour refusé", resolved.reason);
+    reportDuelFailure(duelId, turnId, `tour refusé : ${resolved.reason ?? "raison inconnue"}`);
     return;
   }
   duelState = resolved.state;
-  await advanceDuelPresentation(
-    duelState,
-    pair as Record<DuelSide, DuelCommand>,
-    duelState.history.at(-1)?.order ?? [],
-  );
+  try {
+    await advanceDuelPresentation(
+      duelState,
+      pair as Record<DuelSide, DuelCommand>,
+      duelState.history.at(-1)?.order ?? [],
+    );
+  } catch (error) {
+    console.error("Duel 2P : présentation du tour en échec", error);
+    reportDuelFailure(duelId, turnId, error instanceof Error ? error.message : String(error));
+    return;
+  }
   reportDuelState(turnId);
+}
+
+function reportDuelFailure(duelId: string, turnId: number, reason: string): void {
+  const side = playerIdOfScope();
+  if (side === undefined) {
+    return;
+  }
+  const message = {
+    ...frameMessage("frame/duel-error", playerStorage.prefix, matchId),
+    duelId,
+    turnId,
+    reason: reason.slice(0, 240),
+  };
+  window.parent.postMessage(message, window.location.origin);
 }
 
 /**

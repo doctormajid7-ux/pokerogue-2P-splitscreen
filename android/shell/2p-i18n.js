@@ -6,6 +6,7 @@
 
 /** Language preference written by the Android solo profile picker. */
 const SOLO_LANGUAGE_SCOPE_KEY = "local2p/v1/shell/solo-language-scope/v1";
+const SHELL_LANGUAGE_KEY = "local2p/v1/shell/language/v1";
 const PROFILE_REGISTRY_KEY = "local2p/v1/shell/profiles/v1";
 const PROFILE_ROOT = "local2p/v1/profiles/";
 
@@ -2406,6 +2407,72 @@ const MESSAGES = Object.fromEntries(
   }),
 );
 
+const LANGUAGE_NAMES = Object.freeze({
+  en: "English",
+  fr: "Français",
+  de: "Deutsch",
+  it: "Italiano",
+  "es-ES": "Español (España)",
+  "es-419": "Español (Latinoamérica)",
+  "pt-BR": "Português (Brasil)",
+  ca: "Català",
+  eu: "Euskara",
+  tr: "Türkçe",
+  ru: "Русский",
+  uk: "Українська",
+  pl: "Polski",
+  id: "Bahasa Indonesia",
+  vi: "Tiếng Việt",
+  da: "Dansk",
+  sv: "Svenska",
+  tl: "Filipino",
+  hi: "हिन्दी",
+  ko: "한국어",
+  ja: "日本語",
+  "zh-Hans": "简体中文",
+  "zh-Hant": "繁體中文",
+  th: "ไทย",
+});
+
+const LANGUAGE_PICKER_MESSAGES = {
+  en: { language: "Language", languageAuto: "Automatic (solo / phone)" },
+  fr: { language: "Langue", languageAuto: "Automatique (solo / téléphone)" },
+  de: { language: "Sprache", languageAuto: "Automatisch (Solo / Telefon)" },
+  it: { language: "Lingua", languageAuto: "Automatico (solo / telefono)" },
+  "es-ES": { language: "Idioma", languageAuto: "Automático (solo / teléfono)" },
+  "es-419": { language: "Idioma", languageAuto: "Automático (solo / teléfono)" },
+  "pt-BR": { language: "Idioma", languageAuto: "Automático (solo / telefone)" },
+  ca: { language: "Llengua", languageAuto: "Automàtica (solo / telèfon)" },
+  eu: { language: "Hizkuntza", languageAuto: "Automatikoa (solo / telefonoa)" },
+  tr: { language: "Dil", languageAuto: "Otomatik (solo / telefon)" },
+  ru: { language: "Язык", languageAuto: "Автоматически (соло / телефон)" },
+  uk: { language: "Мова", languageAuto: "Автоматично (соло / телефон)" },
+  pl: { language: "Język", languageAuto: "Automatycznie (solo / telefon)" },
+  id: { language: "Bahasa", languageAuto: "Otomatis (solo / ponsel)" },
+  vi: { language: "Ngôn ngữ", languageAuto: "Tự động (solo / điện thoại)" },
+  da: { language: "Sprog", languageAuto: "Automatisk (solo / telefon)" },
+  sv: { language: "Språk", languageAuto: "Automatiskt (solo / telefon)" },
+  tl: { language: "Wika", languageAuto: "Awtomatiko (solo / telepono)" },
+  hi: { language: "भाषा", languageAuto: "स्वचालित (सोलो / फ़ोन)" },
+  ko: { language: "언어", languageAuto: "자동 (솔로 / 휴대전화)" },
+  ja: { language: "言語", languageAuto: "自動（ソロ／端末）" },
+  "zh-Hans": { language: "语言", languageAuto: "自动（单人模式 / 设备）" },
+  "zh-Hant": { language: "語言", languageAuto: "自動（單人模式／裝置）" },
+  th: { language: "ภาษา", languageAuto: "อัตโนมัติ (โหมดเดี่ยว / โทรศัพท์)" },
+};
+
+for (const language of Object.keys(MESSAGES)) {
+  const pickerMessages = LANGUAGE_PICKER_MESSAGES[language];
+  if (LANGUAGE_NAMES[language] === undefined || pickerMessages === undefined) {
+    throw new Error(`Missing two-player language picker translation for ${language}`);
+  }
+  Object.assign(MESSAGES[language], pickerMessages);
+}
+
+export const TWO_PLAYER_LANGUAGES = Object.freeze(
+  Object.entries(LANGUAGE_NAMES).map(([code, name]) => Object.freeze({ code, name })),
+);
+
 function normalizeLanguage(candidate) {
   if (typeof candidate !== "string" || candidate.trim() === "") {
     return null;
@@ -2472,8 +2539,19 @@ function resolveLanguage(storage, nav) {
 }
 
 export function createTwoPlayerI18n(storage = window.localStorage, nav = window.navigator, doc = window.document) {
-  const language = resolveLanguage(storage, nav);
-  const messages = MESSAGES[language] ?? MESSAGES.en;
+  let selection = "auto";
+  try {
+    const savedLanguage = storage.getItem(SHELL_LANGUAGE_KEY);
+    if (savedLanguage === "auto") {
+      selection = "auto";
+    } else if (TWO_PLAYER_LANGUAGES.some(language => language.code === savedLanguage)) {
+      selection = savedLanguage;
+    }
+  } catch {
+    // A blocked local storage still allows changing language for this visit.
+  }
+  let language = selection === "auto" ? resolveLanguage(storage, nav) : selection;
+  let messages = MESSAGES[language] ?? MESSAGES.en;
   const translate = (key, args = {}) => {
     const message = messages[key] ?? MESSAGES.en[key] ?? key;
     return message.replace(/\{\{(\w+)\}\}/g, (placeholder, name) => String(args[name] ?? placeholder));
@@ -2499,5 +2577,41 @@ export function createTwoPlayerI18n(storage = window.localStorage, nav = window.
     }
   }
 
-  return { language, t: translate, applyStatic };
+  function setLanguage(nextSelection) {
+    if (nextSelection === "auto") {
+      selection = "auto";
+      language = resolveLanguage(storage, nav);
+      try {
+        storage.removeItem(SHELL_LANGUAGE_KEY);
+      } catch {
+        // Keep the in-memory selection even when persistence is unavailable.
+      }
+    } else if (TWO_PLAYER_LANGUAGES.some(candidate => candidate.code === nextSelection)) {
+      selection = nextSelection;
+      language = nextSelection;
+      try {
+        storage.setItem(SHELL_LANGUAGE_KEY, nextSelection);
+      } catch {
+        // Keep the in-memory selection even when persistence is unavailable.
+      }
+    } else {
+      return language;
+    }
+    messages = MESSAGES[language] ?? MESSAGES.en;
+    applyStatic();
+    return language;
+  }
+
+  return {
+    get language() {
+      return language;
+    },
+    get selection() {
+      return selection;
+    },
+    languages: TWO_PLAYER_LANGUAGES,
+    t: translate,
+    applyStatic,
+    setLanguage,
+  };
 }

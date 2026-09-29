@@ -38,10 +38,13 @@ This changelog lists changes in this Android adaptation compared with the origin
 - Kept player duels in the game's battle scene with its sprites, animations, health bars, and messages. Attacks resolve one at a time.
 - Added the normal **Struggle** fallback when a duel Pokémon has no usable PP, including its recoil damage.
 - Added a local capture bank for duel preparation and removed the fixed 96-entry limit. Its practical capacity depends on the app's local browser storage quota.
-- Localized the two-player setup and profile menus in all 24 languages supported by the game. They follow the language preference of the most recently opened solo profile, or the phone's language when no preference is saved. Each game screen continues to follow its own profile language.
+- Localized the two-player setup and profile menus in all 24 languages supported by the game. They follow the language preference of the most recently opened solo profile, or the phone's language when no preference is saved; a setup-screen dropdown can override this. Each game screen continues to follow its own profile language.
+- Fixed a delayed waiting message that could cover the start of a duel turn after both players had chosen. Turn failures now report their cause to the shell so an interrupted duel can be retried.
+- Added the game's return/send-out messages when a player switches Pokémon during a duel and slightly increased the move announcement pause.
 
 ## Audio and app size
 
 - Played one background music track for both players while keeping battle sound effects active in both halves.
+- Kept retrying audio unlock on player input until each frame's audio context is running, avoiding a lost first unlock attempt during startup.
 - Re-encoded the 178 background MP3 tracks at 32 kbit/s or lower. The corresponding originals were replaced; sound effects and other media were not reduced.
 - In the measured build, the APK size fell from about **530 MiB** to **218 MiB**, a reduction of about **312 MiB** (nearly **59%**). Exact size can vary by build.

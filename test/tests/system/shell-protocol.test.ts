@@ -90,6 +90,20 @@ describe("shell protocol", () => {
       expect(isShellMessage({ protocolVersion: SHELL_PROTOCOL_VERSION, type: "shell/rules", rules })).toBe(true);
     });
 
+    it("should validate duel choice acknowledgements", () => {
+      const status = {
+        protocolVersion: SHELL_PROTOCOL_VERSION,
+        type: "shell/duel-choice-status",
+        duelId: "duel-1",
+        turnId: 1,
+        choiceAccepted: false,
+        reason: "choice rejected",
+      };
+      expect(isShellMessage(status)).toBe(true);
+      expect(isShellMessage({ ...status, choiceAccepted: undefined })).toBe(false);
+      expect(isShellMessage({ ...status, turnId: 0 })).toBe(false);
+    });
+
     it("should drop rules it cannot play under, rather than apply them halfway", () => {
       const broken = [
         undefined,

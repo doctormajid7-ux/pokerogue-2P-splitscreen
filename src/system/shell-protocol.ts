@@ -32,7 +32,8 @@
  * chart, `shell/duel-start` opens the duel, and every turn both frames resolve
  * it independently before `frame/duel-state` comes back — the shell only accepts
  * a turn whose two independent answers agree, so no single half can decide the
- * duel alone.
+ * duel alone. Version 3 adds choice acknowledgements and turn failure reports,
+ * so neither frame can remain locked on a choice the shell refused.
  *
  * Both sides ship in the same APK, so the version is bumped rather than
  * negotiated: a frame refuses anything that is not exactly its revision.
@@ -53,7 +54,7 @@ import type { MatchRulesV1, MatchSchedule } from "#system/match-rules";
 import { isMatchRules } from "#system/match-rules";
 
 /** Protocol revision understood by this build. */
-export const SHELL_PROTOCOL_VERSION = 2;
+export const SHELL_PROTOCOL_VERSION = 3;
 
 /** Everything a frame accepts from the shell. */
 export type ShellMessageType =
@@ -71,6 +72,7 @@ export type ShellMessageType =
   | "shell/duel-matchup"
   | "shell/duel-start"
   | "shell/duel-turn"
+  | "shell/duel-choice-status"
   | "shell/duel-abort";
 
 /** Everything a frame sends back to the shell. */
@@ -87,7 +89,8 @@ export type FrameMessageType =
   | "frame/duel-ready"
   | "frame/duel-fighter"
   | "frame/duel-state"
-  | "frame/duel-choice";
+  | "frame/duel-choice"
+  | "frame/duel-error";
 
 /** Both frozen teams of a duel, either of which may still be missing. */
 export interface DuelTeamsMessage {
@@ -139,6 +142,9 @@ export interface ShellMessage {
   /** Turn being played and both choices, carried by `shell/duel-turn`. */
   turnId?: number;
   commands?: Partial<Record<DuelSide, DuelCommand>>;
+  /** Whether the shell accepted this frame's pending choice. */
+  choiceAccepted?: boolean;
+  reason?: string;
 }
 
 /** Frame → shell. */
@@ -202,6 +208,8 @@ export interface FrameMessage {
   bench?: DuelBenchItem[];
   /** Command picked through the in-game Phaser battle menu. */
   command?: DuelCommand;
+  /** Why this frame could not resolve the shared duel turn. */
+  reason?: string;
 }
 
 const SHELL_MESSAGE_TYPES: readonly string[] = [
@@ -219,6 +227,7 @@ const SHELL_MESSAGE_TYPES: readonly string[] = [
   "shell/duel-matchup",
   "shell/duel-start",
   "shell/duel-turn",
+  "shell/duel-choice-status",
   "shell/duel-abort",
 ];
 
@@ -289,6 +298,15 @@ export function isShellMessage(data: unknown): data is ShellMessage {
         && Number.isInteger(message.turnId)
         && message.turnId >= 1
         && isCommandPair(message.commands)
+      );
+    case "shell/duel-choice-status":
+      return (
+        isDuelId(message.duelId)
+        && typeof message.turnId === "number"
+        && Number.isInteger(message.turnId)
+        && message.turnId >= 1
+        && typeof message.choiceAccepted === "boolean"
+        && (message.reason === undefined || (typeof message.reason === "string" && message.reason.length <= 240))
       );
     case "shell/duel-abort":
       return isDuelId(message.duelId);

@@ -31,6 +31,7 @@ import { playDamageAnimation } from "#phases/damage-anim-phase";
 import type { Variant } from "#sprites/variant";
 import type { DuelActionResult, DuelCommand, DuelFighter, DuelSide, DuelState } from "#system/duel-engine";
 import type { DuelMemberData } from "#system/duel-snapshot";
+import { DUEL_PLAYER_IDS } from "#system/duel-snapshot";
 import type { DamageResult } from "#types/damage-result";
 import type { TurnMove } from "#types/turn-move";
 import i18next from "i18next";
@@ -162,6 +163,10 @@ export async function advanceDuelPresentation(
   if (presentation === null || presentation.duelId !== state.duelId) {
     return;
   }
+  // Invalidate the delayed local waiting label before move messages start. The
+  // message mode transition is asynchronous, so an older callback must not
+  // overwrite "uses …" after both players' choices have already been received.
+  presentation.phase.clearWaitingMessage();
   // Switches must be visible before an opponent's ordered attack. Keep this
   // turn's HP and PP until its animations have played, then apply the result.
   syncDuelPresentation(state, commands, order, false);
@@ -206,6 +211,11 @@ export function endDuelPresentation(): void {
     globalScene.phaseManager.shiftPhase();
   }
   globalScene.updateFieldScale();
+}
+
+/** Return the local command menu when the shell refuses a locked choice. */
+export function rejectDuelChoice(): void {
+  presentation?.phase.rejectWaitingChoice();
 }
 
 function createPlayerPokemon(member: DuelMemberData): PlayerPokemon {
@@ -445,6 +455,33 @@ async function animateCommands(
     return;
   }
   const currentPresentation = presentation;
+  // A voluntary switch happens before either move. Name the Pokémon going back
+  // and the replacement, as the native solo switch phases do.
+  for (const side of DUEL_PLAYER_IDS) {
+    const command = commands[side];
+    if (command?.type !== "switch") {
+      continue;
+    }
+    const roster = side === currentPresentation.localSide ? currentPresentation.party : currentPresentation.enemyParty;
+    const outgoingIndex = currentPresentation.benchTeamIndexes[side][command.benchIndex];
+    const outgoing = roster[outgoingIndex];
+    const incoming = roster[currentPresentation.activeTeamIndex[side]];
+    if (outgoing !== undefined) {
+      await showDuelBattleMessage(
+        i18next.t("battle:playerComeBack", { pokemonName: getPokemonNameWithAffix(outgoing) }),
+      );
+      if (presentation !== currentPresentation) {
+        return;
+      }
+    }
+    if (incoming !== undefined) {
+      await showDuelBattleMessage(i18next.t("battle:playerGo", { pokemonName: getPokemonNameWithAffix(incoming) }));
+      if (presentation !== currentPresentation) {
+        return;
+      }
+    }
+  }
+
   const resultsBySide = new Map(actionResults?.map(result => [result.side, result]) ?? []);
   const attacks: { side: DuelSide; user: Pokemon; moveId: MoveId; result?: DuelActionResult }[] = [];
   for (const side of order) {
@@ -495,7 +532,7 @@ async function animateCommands(
         pokemonNameWithAffix: getPokemonNameWithAffix(attack.user),
         moveName: move.name,
       }),
-      500,
+      800,
     );
     if (presentation !== currentPresentation) {
       return;
@@ -640,6 +677,7 @@ class DuelCommandPhase extends CommandPhase {
   public override readonly phaseName = "CommandPhase";
   private readonly onChoice: ChoiceCallback;
   private inputLocked = false;
+  private waitingMessageRevision = 0;
 
   constructor(fieldIndex: number, onChoice: ChoiceCallback) {
     super(fieldIndex);
@@ -648,12 +686,28 @@ class DuelCommandPhase extends CommandPhase {
 
   public override start(): void {
     this.inputLocked = false;
+    this.waitingMessageRevision++;
     globalScene.ui.clearText();
     globalScene.ui.setMode(UiMode.FIGHT, this.getFieldIndex());
   }
 
   unlock(): void {
     this.inputLocked = false;
+    this.waitingMessageRevision++;
+  }
+
+  clearWaitingMessage(): void {
+    this.waitingMessageRevision++;
+    globalScene.ui.clearText();
+  }
+
+  rejectWaitingChoice(): void {
+    this.inputLocked = false;
+    this.waitingMessageRevision++;
+    globalScene.ui.clearText();
+    void globalScene.ui.setMode(UiMode.FIGHT, this.getFieldIndex()).catch(error => {
+      console.debug("Duel 2P : retour au menu d'attaques ignoré", error);
+    });
   }
 
   public override handleCommand(
@@ -692,9 +746,15 @@ class DuelCommandPhase extends CommandPhase {
   }
 
   private showWaitingMessage(): void {
-    globalScene.ui.setMode(UiMode.MESSAGE).then(() => {
-      globalScene.ui.showText("Choix verrouillé · en attente de l'autre joueur", 0);
-    });
+    const revision = ++this.waitingMessageRevision;
+    void globalScene.ui
+      .setMode(UiMode.MESSAGE)
+      .then(() => {
+        if (this.inputLocked && revision === this.waitingMessageRevision) {
+          globalScene.ui.showText("Choix verrouillé · en attente de l'autre joueur", 0);
+        }
+      })
+      .catch(error => console.debug("Duel 2P : affichage du message d'attente ignoré", error));
   }
 
   public override cancel(): void {

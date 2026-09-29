@@ -84,9 +84,15 @@ import {
   const shellI18n = createTwoPlayerI18n();
   const { t } = shellI18n;
   shellI18n.applyStatic();
+  const shellLanguageSelect = document.getElementById("shell-language");
+  for (const language of shellI18n.languages) {
+    const option = new Option(language.name, language.code);
+    shellLanguageSelect.add(option);
+  }
+  shellLanguageSelect.value = shellI18n.selection;
 
   /** Révision du protocole comprise par les deux côtés (voir `shell-protocol.ts`). */
-  const PROTOCOL_VERSION = 2;
+  const PROTOCOL_VERSION = 3;
 
   /** Les règles du match appartiennent à la coque, pas au stockage d'un joueur. */
   const RULES_KEY = "local2p/v1/shell/rules";
@@ -130,6 +136,7 @@ import {
     "frame/duel-fighter",
     "frame/duel-state",
     "frame/duel-choice",
+    "frame/duel-error",
   ];
 
   /**
@@ -806,6 +813,15 @@ import {
   }
 
   function renderAgreement() {
+    renderAgreementLabels();
+    // Le second accord lance le match : le premier joueur n'attend jamais un
+    // bouton qui n'existe pas chez lui.
+    if (agreed.j1 && agreed.j2) {
+      startMatch();
+    }
+  }
+
+  function renderAgreementLabels() {
     const labels = {
       j1: agreed.j1 ? t("readyWaitingJ2") : t("readyLaunch"),
       j2: agreed.j2 ? t("readyWaitingJ1") : t("ready"),
@@ -813,11 +829,6 @@ import {
     readyButtons.j1.textContent = labels.j1;
     readyButtons.j2.textContent = labels.j2;
     readyHint.textContent = agreed.j2 ? t("readyHint") : t("waitingHint");
-    // Le second accord lance le match : le premier joueur n'attend jamais un
-    // bouton qui n'existe pas chez lui.
-    if (agreed.j1 && agreed.j2) {
-      startMatch();
-    }
   }
 
   /** Un accord ne vaut que pour la configuration affichée au moment où il est donné. */
@@ -968,6 +979,48 @@ import {
         ? t("noCaptures")
         : best.map(entry => `#${entry.speciesId} ${t("level")} ${entry.level}`).join(", ");
     elements.bank.textContent = `${t("captureBank", { count: bank.length })} · ${bankPreview}. ${t("bankHelp")}`;
+  }
+
+  function refreshLanguageDependentContent() {
+    for (const playerId of ["j1", "j2"]) {
+      const elements = profileElements[playerId];
+      const draft = { name: elements.name.value, avatar: elements.avatar.value, color: elements.color.value };
+      renderProfile(playerId);
+      elements.name.value = draft.name;
+      elements.avatar.value = draft.avatar;
+      elements.color.value = draft.color;
+      // Status messages are transient and may have been generated in the old language.
+      elements.message.textContent = "";
+
+      if (elements.deleteStage > 0 && elements.deleteTarget !== null) {
+        const target = listProfiles(localStorage).find(profile => profile.id === elements.deleteTarget);
+        if (target === undefined) {
+          resetDeleteConfirmation(elements);
+        } else {
+          const messageKey = elements.deleteStage === 1 ? "deleteAskFirst" : "deleteAskSecond";
+          const buttonKey = elements.deleteStage === 1 ? "deleteButtonFirst" : "deleteButtonSecond";
+          elements.deleteConfirmation.hidden = false;
+          elements.deleteMessage.textContent = t(messageKey, {
+            avatar: target.avatar,
+            name: target.displayName,
+          });
+          elements.deleteConfirm.textContent = t(buttonKey);
+        }
+      }
+    }
+
+    const rules = rulesFromFields();
+    const scheduled = rules.mode === "blocks";
+    const free = rules.mode === "side-by-side";
+    modeHelp.textContent = scheduled ? t("modeHelpBlocks") : free ? t("modeHelpFree") : t("modeHelpQuick");
+    const recap = recapText(rules);
+    for (const recapElement of Object.values(recaps)) {
+      recapElement.textContent = recap;
+    }
+    quickTeamHelp.textContent =
+      fields.quickTeamMode.value === "balanced" ? t("quickHelpBalanced") : t("quickHelpRandom");
+    renderAgreementLabels();
+    renderResume();
   }
 
   /** Un combat gagné contre l'IA, annoncé par la session du joueur. */
@@ -1512,6 +1565,39 @@ import {
       return { accepted: true };
     }
     return sendDuelTurn();
+  }
+
+  function handleDuelChoice(player, message) {
+    const validTurnId = Number.isInteger(message.turnId) && message.turnId >= 1;
+    const duelId = typeof message.duelId === "string" ? message.duelId : duelSession?.duelId;
+    const turnId = validTurnId ? message.turnId : (duelSession?.turn ?? 1);
+    let result = { accepted: false, reason: "choix illisible" };
+
+    if (duelSession === null) {
+      result.reason = "aucun duel en cours";
+    } else if (message.duelId !== duelSession.duelId) {
+      result.reason = "choix d'un autre duel";
+    } else if (validTurnId && message.turnId === duelSession.turn) {
+      if (isDuelCommand(message.command)) {
+        result = chooseDuelCommand(player.id, message.command);
+      } else {
+        result.reason = "commande illisible";
+      }
+    } else {
+      result.reason = "choix d'un autre tour";
+    }
+
+    if (typeof duelId === "string" && Number.isInteger(turnId) && turnId >= 1) {
+      postTo(player, "shell/duel-choice-status", {
+        duelId,
+        turnId,
+        choiceAccepted: result.accepted,
+        ...(result.reason === undefined ? {} : { reason: result.reason }),
+      });
+    }
+    if (!result.accepted) {
+      console.warn("Coque 2P : choix de duel refusé", player.id, result.reason);
+    }
   }
 
   /** Envoie le tour aux deux cadres : c'est là que les deux choix se rencontrent. */
@@ -2078,8 +2164,16 @@ import {
         receiveDuelState(player, event.data);
         break;
       case "frame/duel-choice":
-        if (duelSession !== null && event.data.duelId === duelSession.duelId && isDuelCommand(event.data.command)) {
-          chooseDuelCommand(player.id, event.data.command);
+        handleDuelChoice(player, event.data);
+        break;
+      case "frame/duel-error":
+        if (
+          duelSession !== null
+          && event.data.duelId === duelSession.duelId
+          && event.data.turnId === duelSession.awaiting
+          && typeof event.data.reason === "string"
+        ) {
+          abortLiveDuel(`${player.id.toUpperCase()} : ${event.data.reason.slice(0, 240)}`);
         }
         break;
       case "frame/duel-waiting":
@@ -2160,6 +2254,12 @@ import {
   }
   fields.mode.addEventListener("pointerdown", prepareModeDropdown);
   fields.mode.addEventListener("focus", prepareModeDropdown);
+  shellLanguageSelect.addEventListener("pointerdown", prepareModeDropdown);
+  shellLanguageSelect.addEventListener("focus", prepareModeDropdown);
+  shellLanguageSelect.addEventListener("change", () => {
+    shellI18n.setLanguage(shellLanguageSelect.value);
+    refreshLanguageDependentContent();
+  });
   for (const key of ["quickTeamMode", "quickLevelMode", "quickLevel"]) {
     fields[key].addEventListener("pointerdown", prepareModeDropdown);
     fields[key].addEventListener("focus", prepareModeDropdown);
