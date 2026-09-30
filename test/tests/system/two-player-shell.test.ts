@@ -50,6 +50,16 @@ describe("two-player shell i18n", () => {
     expect(i18n.t("quit")).toBe("Beenden");
   });
 
+  it("prefers the explicit shell language over the active solo profile language", () => {
+    const i18n = makeI18n({
+      [SHELL_LANGUAGE_KEY]: "de",
+      [SOLO_LANGUAGE_SCOPE_KEY]: "profile:p1",
+      [`${PROFILE_ROOT}p1/prLang`]: "ja",
+    });
+    expect(i18n.selection).toBe("de");
+    expect(i18n.language).toBe("de");
+  });
+
   it("follows the scoped solo profile language in automatic mode", () => {
     const i18n = makeI18n({
       [SHELL_LANGUAGE_KEY]: "auto",
