@@ -52,6 +52,38 @@ For installation and gameplay details, read the [Android player guide](./android
 in English or [French](./android/README.fr.md). Changes from the original browser
 game are listed in the [Android changelog](./android/CHANGELOG.md).
 
+## Android screenshots
+
+These screenshots show the Android controls, solo battles, and local two-player
+mode. Select any image to view it at full size.
+
+### Solo play
+
+<table>
+  <tr>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_200926.jpg"><img src="./docs/screenshots/Screenshot_20260929_200926.jpg" width="180" alt="PokéRogue Android main menu and touch controls"></a><br><sub>Main menu and touch controls</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_200936.jpg"><img src="./docs/screenshots/Screenshot_20260929_200936.jpg" width="180" alt="PokéRogue Android Pokémon selection screen"></a><br><sub>Pokémon selection</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_201027.jpg"><img src="./docs/screenshots/Screenshot_20260929_201027.jpg" width="180" alt="PokéRogue Android solo battle move menu"></a><br><sub>Solo battle move menu</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_213920.jpg"><img src="./docs/screenshots/Screenshot_20260929_213920.jpg" width="180" alt="PokéRogue Android battle message during a solo run"></a><br><sub>Battle messages and effects</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_213926.jpg"><img src="./docs/screenshots/Screenshot_20260929_213926.jpg" width="180" alt="PokéRogue Android solo battle after an attack"></a><br><sub>Attack feedback</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_214624.jpg"><img src="./docs/screenshots/Screenshot_20260929_214624.jpg" width="180" alt="PokéRogue Android solo battle later in a run"></a><br><sub>Battle later in a run</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_215002.jpg"><img src="./docs/screenshots/Screenshot_20260929_215002.jpg" width="180" alt="PokéRogue Android evolution scene in landscape orientation"></a><br><sub>Evolution in landscape orientation</sub></td>
+  </tr>
+</table>
+
+### Local two-player mode
+
+<table>
+  <tr>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_201320.jpg"><img src="./docs/screenshots/Screenshot_20260929_201320.jpg" width="180" alt="PokéRogue Android two-player split-screen team selection"></a><br><sub>Split-screen team selection</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_201353.jpg"><img src="./docs/screenshots/Screenshot_20260929_201353.jpg" width="180" alt="PokéRogue Android local split-screen battle"></a><br><sub>Local split-screen battle</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_201521.jpg"><img src="./docs/screenshots/Screenshot_20260929_201521.jpg" width="180" alt="PokéRogue Android free duel between two players"></a><br><sub>Free duel between players</sub></td>
+    <td align="center"><a href="./docs/screenshots/Screenshot_20260929_212200.jpg"><img src="./docs/screenshots/Screenshot_20260929_212200.jpg" width="180" alt="PokéRogue 2Players mode setup screen"></a><br><sub>Two-player mode setup</sub></td>
+  </tr>
+</table>
+
 ## Original PokéRogue project
 
 PokéRogue is the original browser game created by Pagefault Games. Visit the
