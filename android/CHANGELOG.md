@@ -43,6 +43,8 @@ This changelog lists changes in this Android adaptation compared with the origin
 - Fixed a delayed waiting message that could cover the start of a duel turn after both players had chosen. Turn failures now report their cause to the shell so an interrupted duel can be retried.
 - Matched duel move-announcement timing to the game's normal battle-message delay and retained the player's manual message-clear setting.
 - Fixed duel pause/resume so its timeout and final-turn display timer stop while paused and continue with their remaining time after resume.
+- Corrected the localized duel-round and point labels, kept parked-player status consistent, and prevented the result card from flickering during dashboard updates.
+- Showed experimental Pokémon sprite atlases on the result screen whenever the game setting enables them, with the same bounded path validation used for duel snapshots.
 
 ## Audio and app size
 

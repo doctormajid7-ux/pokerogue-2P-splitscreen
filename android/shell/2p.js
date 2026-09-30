@@ -43,6 +43,7 @@ import {
   duelDisplayFor,
   duelSeedOf,
   isDuelFighter,
+  isSafeSpriteAtlasPath,
   lockDuelChoice,
   newDuelSession,
   openDuelTurn,
@@ -327,6 +328,9 @@ import {
   let duelFailure = null;
   let duelRetryNeeded = false;
   let finalResultSummary = null;
+  /** Dernier résumé rendu, pour ne pas reconstruire la carte sans raison. */
+  let renderedResultSummary = null;
+  let renderedResultLanguage = null;
 
   // --------------------------------------------------------------- outils
 
@@ -545,11 +549,14 @@ import {
   }
 
   function renderState(player) {
+    // Un cadre garé n'est pas prêt : l'état affiché dérive de son arrêt, sans
+    // quoi le prochain message du cadre effacerait sa mention.
+    const state = player.state === "ready" && player.parked ? "idle" : player.state;
     const labels = { idle: "", ready: t("readyState"), paused: t("pausedState") };
-    const label = labels[player.state] ?? "";
+    const label = labels[state] ?? "";
     player.marker.textContent = `${player.id.toUpperCase()}${label ? ` · ${label}` : ""}`;
-    player.marker.classList.toggle("ready", player.state === "ready");
-    player.marker.classList.toggle("paused", player.state === "paused");
+    player.marker.classList.toggle("ready", state === "ready");
+    player.marker.classList.toggle("paused", state === "paused");
   }
 
   function playerOf(frameWindow) {
@@ -593,7 +600,7 @@ import {
     const progress = playerProgress(journal, playerId);
     const battles =
       progress.needed === 0
-        ? t("duelButton")
+        ? t("dashboardDuelRound")
         : t("dashboardBattleCount", { done: progress.battles, total: progress.needed });
     const boundary = progress.atBoundary ? t("dashboardBoundary") : "";
     return t("dashboardBlockProgress", {
@@ -687,8 +694,8 @@ import {
           player.frame.hidden = true;
         }
       }
-      resultScreen.hidden = false;
       renderMatchResult();
+      resultScreen.hidden = false;
     } else if (finalResultSummary === null) {
       resultScreen.hidden = true;
     }
@@ -718,6 +725,14 @@ import {
       return;
     }
     const summary = finalResultSummary;
+    // Le tableau de bord se rafraîchit à chaque message des cadres : la carte
+    // n'est reconstruite que quand son contenu ou sa langue change, sinon les
+    // sprites déjà chargés clignoteraient à chaque mise à jour.
+    if (renderedResultSummary === summary && renderedResultLanguage === shellI18n.language) {
+      return;
+    }
+    renderedResultSummary = summary;
+    renderedResultLanguage = shellI18n.language;
     const winnerId = finalResultSummary.winner;
     const winner = winnerId === "draw" ? null : finalResultSummary.teams[winnerId]?.trainer;
     resultElements.kicker.textContent = t(summary.returnToRuns ? "resultFreeDuel" : "resultMatchEnd");
@@ -775,7 +790,7 @@ import {
 
   /** Crops one animation frame from the game's own sprite atlas. */
   function loadAtlasFrameDataUrl(atlasPath, preferredFrame) {
-    if (!/^[a-z0-9_/-]+$/i.test(atlasPath) || atlasPath.split("/").includes("..")) {
+    if (!isSafeSpriteAtlasPath(atlasPath)) {
       return Promise.resolve(null);
     }
     const cacheKey = `${atlasPath}|${preferredFrame}`;
@@ -797,7 +812,9 @@ import {
           const frame =
             frames.find(entry => entry.filename === preferredFrame)
             ?? frames.find(entry => entry.filename === "0001.png")
-            ?? [...frames].sort((a, b) => Number.parseInt(a.filename, 10) - Number.parseInt(b.filename, 10))[0];
+            ?? frames.reduce((best, entry) =>
+              Number.parseInt(entry.filename, 10) < Number.parseInt(best.filename, 10) ? entry : best,
+            );
           const rect = frame?.frame;
           const sourceSize = frame?.sourceSize;
           const spriteSourceSize = frame?.spriteSourceSize;
@@ -2285,7 +2302,9 @@ import {
     broadcast(paused ? "shell/pause" : "shell/resume");
     // La coque ne suppose pas l'état d'un cadre : il l'annonce lui-même.
     for (const player of players) {
-      player.state = paused ? "paused" : player.parked ? "idle" : "ready";
+      // L'arrêt d'un cadre est affiché par `renderState`, pas par l'état : les
+      // portes « prêt » comptent un cadre garé comme actif.
+      player.state = paused ? "paused" : "ready";
       renderState(player);
     }
   }

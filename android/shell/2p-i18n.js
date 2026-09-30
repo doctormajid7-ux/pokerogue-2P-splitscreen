@@ -2441,8 +2441,8 @@ const LANGUAGE_PICKER_MESSAGES = {
     pause: "Pause",
     resume: "Resume",
     quit: "Quit",
-    readyState: "Ready",
-    pausedState: "Paused",
+    readyState: "ready",
+    pausedState: "paused",
   },
   fr: {
     language: "Langue",
@@ -2997,6 +2997,7 @@ const TWO_PLAYER_RUNTIME_MESSAGE_KEYS = [
   "reinforcementCaptureAria",
   "reinforcementIncomplete",
   "reinforcementUnique",
+  "dashboardDuelRound",
 ];
 
 const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
@@ -3044,6 +3045,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Capture {{index}}",
     "Incomplete choice · select a team slot and a capture",
     "Each team slot and capture must be unique",
+    "duel round",
   ],
   fr: [
     "Réglages du match",
@@ -3089,6 +3091,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Capture {{index}}",
     "Choix incomplet · choisir un emplacement et une capture",
     "Chaque emplacement et chaque capture doivent être uniques",
+    "manche de duel",
   ],
   de: [
     "Matcheinstellungen",
@@ -3134,6 +3137,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Fang-Pokémon {{index}}",
     "Unvollständige Auswahl · Teamplatz und Fang-Pokémon auswählen",
     "Jeder Teamplatz und jedes Fang-Pokémon darf nur einmal gewählt werden",
+    "Duel-Runde",
   ],
   it: [
     "Impostazioni della partita",
@@ -3179,6 +3183,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Cattura {{index}}",
     "Scelta incompleta · seleziona un posto in squadra e una cattura",
     "Ogni posto in squadra e ogni cattura devono essere unici",
+    "round di duello",
   ],
   "es-ES": [
     "Ajustes de la partida",
@@ -3224,6 +3229,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Captura {{index}}",
     "Selección incompleta · elige un puesto y una captura",
     "Cada puesto y cada captura deben ser únicos",
+    "ronda de duelo",
   ],
   "pt-BR": [
     "Configurações da partida",
@@ -3269,6 +3275,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Captura {{index}}",
     "Escolha incompleta · selecione um espaço da equipe e uma captura",
     "Cada espaço da equipe e cada captura só podem ser usados uma vez",
+    "rodada de duelo",
   ],
   ca: [
     "Configuració de la partida",
@@ -3314,6 +3321,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Captura {{index}}",
     "Tria incompleta · selecciona un lloc i una captura",
     "Cada lloc de l'equip i cada captura només es poden triar una vegada",
+    "ronda de duel",
   ],
   eu: [
     "Partidaren ezarpenak",
@@ -3359,6 +3367,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Harrapaketa {{index}}",
     "Aukera osatu gabea · aukeratu taldeko tokia eta harrapaketa bat",
     "Taldeko toki eta harrapaketa bakoitza behin bakarrik erabil daiteke",
+    "dueluaren txanda",
   ],
   tr: [
     "Maç ayarları",
@@ -3404,6 +3413,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Yakalama {{index}}",
     "Seçim eksik · bir takım yuvası ve bir yakalama seç",
     "Her takım yuvası ve yakalama yalnızca bir kez seçilebilir",
+    "düello turu",
   ],
   ru: [
     "Настройки матча",
@@ -3449,6 +3459,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Пойманный покемон {{index}}",
     "Выбор не завершён · выберите место в команде и покемона",
     "Каждое место и каждого покемона можно выбрать только один раз",
+    "раунд дуэли",
   ],
   uk: [
     "Налаштування матчу",
@@ -3477,7 +3488,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "переміг(ла) {{player}}",
     "{{player}} · {{points}} · матч: {{result}}",
     "{{done}}/{{total}} боїв",
-    "{{count}} балів",
+    "{{count}} бал.",
     "{{player}} · блок {{current}}/{{total}} · {{battles}} · {{points}}{{boundary}}",
     " · кінець блоку",
     "Дуель очікується · обидва блоки завершено",
@@ -3494,6 +3505,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Спійманий покемон {{index}}",
     "Вибір не завершено · виберіть місце в команді та покемона",
     "Кожне місце та кожного покемона можна вибрати лише один раз",
+    "раунд дуелі",
   ],
   pl: [
     "Ustawienia meczu",
@@ -3539,6 +3551,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Złapany Pokémon {{index}}",
     "Niepełny wybór · wybierz miejsce w drużynie i złapanego Pokémona",
     "Każde miejsce i każdego Pokémona można wybrać tylko raz",
+    "runda pojedynku",
   ],
   id: [
     "Pengaturan pertandingan",
@@ -3584,6 +3597,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Tangkapan {{index}}",
     "Pilihan belum lengkap · pilih slot tim dan Pokémon tangkapan",
     "Setiap slot tim dan Pokémon tangkapan hanya boleh dipilih sekali",
+    "ronde duel",
   ],
   vi: [
     "Cài đặt trận đấu",
@@ -3629,6 +3643,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Pokémon bắt được {{index}}",
     "Chưa chọn đủ · hãy chọn vị trí đội và Pokémon đã bắt",
     "Mỗi vị trí đội và Pokémon đã bắt chỉ được chọn một lần",
+    "hiệp đấu tay đôi",
   ],
   da: [
     "Kampindstillinger",
@@ -3674,6 +3689,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Fangst {{index}}",
     "Ufuldstændigt valg · vælg en holdplads og en fangst",
     "Hver holdplads og fangst må kun vælges én gang",
+    "duelrunde",
   ],
   sv: [
     "Matchinställningar",
@@ -3719,6 +3735,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Fångst {{index}}",
     "Ofullständigt val · välj en lagplats och en fångst",
     "Varje lagplats och fångst kan bara väljas en gång",
+    "duellrunda",
   ],
   tl: [
     "Mga setting ng laban",
@@ -3747,7 +3764,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "panalo si {{player}}",
     "{{player}} · {{points}} · laban {{result}}",
     "{{done}}/{{total}} laban",
-    "{{count}} puntos",
+    "{{count}} pt",
     "{{player}} · block {{current}}/{{total}} · {{battles}} · {{points}}{{boundary}}",
     " · nasa dulo ng block",
     "Naghihintay ng duel · tapos na ang dalawang block",
@@ -3764,6 +3781,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "Huli {{index}}",
     "Kulang ang pinili · pumili ng slot ng team at nahuling Pokémon",
     "Isang beses lang puwedeng piliin ang bawat slot at huli",
+    "round ng duel",
   ],
   hi: [
     "मैच सेटिंग",
@@ -3809,6 +3827,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "पकड़ा गया {{index}}",
     "चुनाव अधूरा · टीम स्थान और पकड़ा हुआ पोकेमॉन चुनें",
     "हर टीम स्थान और पकड़े हुए पोकेमॉन को केवल एक बार चुना जा सकता है",
+    "ड्यूल राउंड",
   ],
   ko: [
     "대전 설정",
@@ -3854,6 +3873,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "포획 {{index}}",
     "선택 미완료 · 팀 자리와 포획한 포켓몬을 선택하세요",
     "각 팀 자리와 포획 포켓몬은 한 번씩만 선택할 수 있습니다",
+    "대전 라운드",
   ],
   ja: [
     "対戦設定",
@@ -3899,6 +3919,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "捕獲 {{index}}",
     "選択が未完了です · チームの枠と捕まえたポケモンを選択してください",
     "チームの枠と捕まえたポケモンはそれぞれ1回だけ選べます",
+    "デュエルラウンド",
   ],
   "zh-Hans": [
     "对战设置",
@@ -3944,6 +3965,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "捕获{{index}}",
     "尚未选择完成 · 请选择队伍位置和捕获的宝可梦",
     "每个队伍位置和捕获的宝可梦只能选择一次",
+    "对战回合",
   ],
   "zh-Hant": [
     "對戰設定",
@@ -3989,6 +4011,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "捕獲{{index}}",
     "尚未選擇完成 · 請選擇隊伍位置和捕獲的寶可夢",
     "每個隊伍位置和捕獲的寶可夢只能選擇一次",
+    "對戰回合",
   ],
   th: [
     "การตั้งค่าการแข่งขัน",
@@ -4034,6 +4057,7 @@ const TWO_PLAYER_RUNTIME_TRANSLATIONS = {
     "โปเกมอนที่จับได้ {{index}}",
     "เลือกไม่ครบ · เลือกตำแหน่งทีมและโปเกมอนที่จับได้",
     "เลือกตำแหน่งทีมและโปเกมอนที่จับได้ซ้ำไม่ได้",
+    "รอบดวล",
   ],
 };
 
@@ -4091,7 +4115,8 @@ function normalizeLanguage(candidate) {
   }
   const lower = value.toLowerCase();
   if (lower === "es" || lower.startsWith("es-")) {
-    return lower === "es-es" ? "es-ES" : "es-419";
+    // `es-ES` a déjà été rendu par la correspondance exacte ci-dessus.
+    return "es-419";
   }
   if (lower === "pt" || lower.startsWith("pt-")) {
     return "pt-BR";

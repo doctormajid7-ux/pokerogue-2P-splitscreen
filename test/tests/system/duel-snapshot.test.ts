@@ -99,6 +99,7 @@ describe("duel snapshot", () => {
         custom: { ability: 9 },
         metWave: 12,
         fusion: null,
+        heldItems: [],
       });
     });
 

@@ -502,6 +502,25 @@ export function isDuelMove(value) {
 }
 
 /**
+ * Contrôle d'un chemin d'atlas de sprite, tel que la coque le reçoit.
+ *
+ * Le chemin est relatif au dossier `images/` : un seul jeu de caractères, pas
+ * de segment parent, et une longueur bornée. La même règle protège le moteur
+ * (`duel-engine.ts`) et l'écran de résultat.
+ *
+ * @param {unknown} value - Chemin reçu
+ * @returns {boolean} Si le chemin ne peut sortir du dossier d'images
+ */
+export function isSafeSpriteAtlasPath(value) {
+  return (
+    typeof value === "string"
+    && value.length <= 200
+    && /^[a-z0-9_/-]+$/i.test(value)
+    && !value.split("/").includes("..")
+  );
+}
+
+/**
  * Contrôle structurel d'un combattant, à l'entrée de la session.
  *
  * Mêmes règles que `isDuelFighter` du moteur : un combattant est produit par le
@@ -525,11 +544,7 @@ export function isDuelFighter(value, playerId) {
     && value.level >= 1
     && value.level <= MAX_DUEL_LEVEL
     && typeof value.name === "string"
-    && (value.resultSpriteAtlasPath === undefined
-      || (typeof value.resultSpriteAtlasPath === "string"
-        && value.resultSpriteAtlasPath.length <= 200
-        && /^[a-z0-9_/-]+$/i.test(value.resultSpriteAtlasPath)
-        && !value.resultSpriteAtlasPath.split("/").includes("..")))
+    && (value.resultSpriteAtlasPath === undefined || isSafeSpriteAtlasPath(value.resultSpriteAtlasPath))
     && (value.trainerSkin === undefined || value.trainerSkin === "m" || value.trainerSkin === "f")
     && Array.isArray(value.types)
     && value.types.length > 0

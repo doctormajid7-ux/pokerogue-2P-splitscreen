@@ -13,6 +13,7 @@ import { getTypeDamageMultiplier } from "#data/type";
 import type { PokemonType } from "#enums/pokemon-type";
 import type { PlayerPokemon } from "#field/pokemon";
 import { PokemonMove } from "#moves/pokemon-move";
+import { hasExpSprite } from "#sprites/sprite-utils";
 import type { Variant } from "#sprites/variant";
 import type { DuelCommand, DuelFighter, DuelSide, DuelState } from "#system/duel-engine";
 import { createDuel, duelBenchFor, duelMovesFor, duelPublicState, lockCommand, resolveTurn } from "#system/duel-engine";
@@ -728,11 +729,19 @@ function materializeFighter(side: DuelSide, members: readonly DuelMemberData[]):
     if (moves.length === 0) {
       return null;
     }
+    // La carte de résultat montre le sprite que le cadre affiche en combat :
+    // quand les sprites expérimentaux sont activés pour cette espèce, c'est
+    // l'atlas `exp/` qui est chargé, avec le même chemin que `loadPokemonAtlas`.
+    const spriteAtlasPath = pokemon.getSpriteAtlasPath();
+    const useExpSprite = settings.expSpritesEnabled && hasExpSprite(`pkmn__${pokemon.getSpriteId()}`);
+    const resultSpriteAtlasPath = useExpSprite
+      ? `${spriteAtlasPath.includes("variant/") || /_[0-3]$/.test(spriteAtlasPath) ? "variant/" : ""}exp/${spriteAtlasPath.replace("variant/", "")}`
+      : spriteAtlasPath;
     return {
       side,
       species: member.species,
       name: pokemon.getNameToRender(),
-      resultSpriteAtlasPath: pokemon.getSpriteAtlasPath(),
+      resultSpriteAtlasPath,
       trainerSkin: settings.isPlayerFemale ? "f" : "m",
       heldItems: [...(member.heldItems ?? [])],
       level: pokemon.level,
