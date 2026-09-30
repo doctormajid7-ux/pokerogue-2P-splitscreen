@@ -21,7 +21,7 @@ Si vous avez reçu un fichier `.apk` :
 3. Si Android le demande, autorisez temporairement cette application à installer des applications, puis revenez à l'installation.
 4. Appuyez sur **Installer**, puis ouvrez **PokéRogue** ou **PokéRogue 2Players**.
 
-Les deux entrées sont comprises dans une même installation. **PokéRogue** ouvre le jeu solo et **PokéRogue 2Players** le mode à deux. Le fichier APK distribué par ce projet s'appelle `PokeRogue-Android-2Players.apk`.
+Les deux entrées sont comprises dans une même installation. **PokéRogue** ouvre le jeu solo et **PokéRogue 2Players** le mode à deux. Le fichier APK distribué par ce projet s'appelle `PokeRogue-Android-2Players.apk` ; téléchargez-le depuis la [page des releases Android](https://github.com/doctormajid7-ux/pokerogue-2P-splitscreen/releases).
 
 ## Jouer en solo
 

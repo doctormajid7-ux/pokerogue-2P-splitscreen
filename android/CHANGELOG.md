@@ -46,6 +46,16 @@ This changelog lists changes in this Android adaptation compared with the origin
 - Corrected the localized duel-round and point labels, kept parked-player status consistent, and prevented the result card from flickering during dashboard updates.
 - Showed experimental Pokémon sprite atlases on the result screen whenever the game setting enables them, with the same bounded path validation used for duel snapshots.
 
+## Follow-up corrections and validation
+
+- Added the separate `dashboardDuelRound` label to all 24 two-player locales instead of reusing the duel-button text. Corrected Ukrainian and Tagalog point labels and matched the English **ready** and **paused** labels to the shell's lowercase style.
+- Kept parked-frame status derived from the frame's parked flag while preserving the readiness checks used to start quick-battle team generation. Removed the unreachable Spanish locale fallback branch.
+- Prevented result-card flicker by skipping redraws when its summary and language have not changed, and by filling the card before showing it. Replaced sorting all animation frames with selecting the first-numbered frame directly.
+- Made the result screen use experimental and variant sprite atlases when enabled, with the same bounded atlas-path validation used by duel snapshots.
+- Updated the duel-snapshot expectation for the `heldItems` field already captured for duel fighters.
+- Added nine shell regression tests for language resolution and precedence, profile and phone fallbacks, language-choice persistence, translation coverage, safe sprite paths, and validator parity. The ninth case confirms that an explicit shell-language choice takes precedence over the active solo profile.
+- Verified the follow-up build with **229/229 system tests**, TypeScript and JavaScript typechecks, Biome, and `ls-lint` on the changed files.
+
 ## Audio and app size
 
 - Played one background music track for both players while keeping battle sound effects active in both halves.

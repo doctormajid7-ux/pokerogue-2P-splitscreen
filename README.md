@@ -19,6 +19,7 @@ PokéRogue is a browser based Pokémon fangame heavily inspired by the roguelite
 
 This community fork adds an offline Android app with two launchers: **PokéRogue**
 for solo play and **PokéRogue 2Players** for local play on one phone.
+Download the latest APK from the [Android releases page](https://github.com/doctormajid7-ux/pokerogue-2P-splitscreen/releases).
 
 ## Android features
 

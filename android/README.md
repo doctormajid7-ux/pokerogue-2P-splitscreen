@@ -21,7 +21,7 @@ If you received an `.apk` file:
 3. If Android asks, temporarily allow that app to install applications, then return to the installer.
 4. Tap **Install**, then open **PokéRogue** or **PokéRogue 2Players**.
 
-Both launchers are included in one installation. Use **PokéRogue** for solo play and **PokéRogue 2Players** for two players. The APK distributed by this project is named `PokeRogue-Android-2Players.apk`.
+Both launchers are included in one installation. Use **PokéRogue** for solo play and **PokéRogue 2Players** for two players. The APK distributed by this project is named `PokeRogue-Android-2Players.apk`; download it from the [Android releases page](https://github.com/doctormajid7-ux/pokerogue-2P-splitscreen/releases).
 
 ## Play solo
 
